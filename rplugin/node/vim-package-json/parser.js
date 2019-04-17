@@ -7,6 +7,14 @@ const depMarkers = {
   ],
   "Cargo.toml": [[/\[.*dependencies\]/, /\[.*\]/]]
 };
+const nameParserRegex = {
+  "package.json": /['|"](.*)['|"] *:/,
+  "Cargo.toml": /(.*) *=.*/
+};
+const versionParserRegex = {
+  "package.json": /: *['|"](.*)['|"]/,
+  "Cargo.toml": /.*=.*['|"](.*)['|"].*/
+};
 
 function isStart(line, confType) {
   for (let i = 0; i < depMarkers[confType].length; i++) {
@@ -26,7 +34,7 @@ function getDepLines(bf, confType) {
     const end = isStart(bf[i], confType);
     if (end) {
       spos = i;
-      for (let j = i+1; j < bf.length; j++) {
+      for (let j = i + 1; j < bf.length; j++) {
         if (end.test(bf[j])) {
           epos = j;
           break;
@@ -39,15 +47,6 @@ function getDepLines(bf, confType) {
   }
   return groups;
 }
-
-const nameParserRegex = {
-  "package.json": /['|"](.*)['|"] *:/,
-  "Cargo.toml": /(.*) *=.*/
-};
-const versionParserRegex = {
-  "package.json": /: *['|"](.*)['|"]/,
-  "Cargo.toml": /.*=.*['|"](.*)['|"].*/
-};
 
 function getPackageInfo(line, confType) {
   const info = { name: undefined, version: undefined };
