@@ -6,6 +6,12 @@ As of now, lets you view the latest version of each package in the file.
 
 ![image](https://i.imgur.com/5VDcOwE.png)
 
+Default colors:
+
+- `green`: patch update
+- `cyan`: minor update
+- `red`: major update
+
 ## Installation
 
 Use your favorite plugin manager.
