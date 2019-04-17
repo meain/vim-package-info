@@ -4,7 +4,7 @@ Simple things to enhance `package.json` content.
 
 As of now, lets you view the latest version of each package in the file.
 
-![image](https://i.imgur.com/grOUvbJ.png)
+![image](https://i.imgur.com/5VDcOwE.png)
 
 ## Installation
 
@@ -28,4 +28,15 @@ let g:vim_package_json_virutaltext_prefix = '  ¤ '
 ```
 let g:vim_package_json_virutaltext_highlight = 'NonText'
 ```
+
+There are three other highlight groups that you can change.
+You can change them like this
+
+```
+hi VimPackageJsonPatch guifg=#8BC34A
+hi VimPackageJsonMinor guifg=#00BCD4
+hi VimPackageJsonMajor guifg=#F44336
+```
+
+
 
