@@ -45,6 +45,7 @@ async function formatLatest(package, version, hl, confType) {
 async function fetchAll(nvim) {
   const buffer = await nvim.nvim.buffer;
   const bf = await buffer.getLines();
+  const confType = await nvim.nvim.commandOutput("echo expand('%')");
 
   try {
     prefix = await nvim.nvim.eval("g:vim_package_json_virutaltext_prefix");
@@ -53,7 +54,6 @@ async function fetchAll(nvim) {
     hl_group = await nvim.nvim.eval("g:vim_package_json_virutaltext_highlight");
   } catch (error) {}
 
-  const confType = "Cargo.toml";
   let dep_lines = parser.getDepLines(bf, confType);
 
   dep_lines.forEach(async dl => {
@@ -102,6 +102,15 @@ module.exports = nvim => {
       pattern: "Cargo.toml"
     }
   );
+  nvim.registerAutocmd(
+    "BufEnter",
+    async () => {
+      await fetchAll(nvim);
+    },
+    {
+      pattern: "package.json"
+    }
+  );
 
   nvim.registerAutocmd(
     "InsertLeave",
@@ -111,6 +120,16 @@ module.exports = nvim => {
     },
     {
       pattern: "Cargo.toml"
+    }
+  );
+  nvim.registerAutocmd(
+    "InsertLeave",
+    async () => {
+      await cleanAll(nvim);
+      await fetchAll(nvim);
+    },
+    {
+      pattern: "package.json"
     }
   );
 };
