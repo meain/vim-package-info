@@ -2,12 +2,13 @@
 
 > Previously `vim-package-json`
 
-
 It lets you view the latest version of each package of your dependency.
 
 **Currently supports `package.json` and `Cargo.toml`**
 
-![image](https://i.imgur.com/R5K3mC9.png)
+| ![](https://i.imgur.com/pAffll5.png) | ![](https://i.imgur.com/HD9wzk7.png) |
+| :----------------------------------: | :----------------------------------: |
+|             package.json             |              Cargo.toml              |
 
 Default colors:
 
@@ -55,7 +56,6 @@ hi VimPackageInfoPatch guifg=#8BC34A
 hi VimPackageInfoMinor guifg=#00BCD4
 hi VimPackageInfoMajor guifg=#F44336
 ```
-
 
 ## Development
 
