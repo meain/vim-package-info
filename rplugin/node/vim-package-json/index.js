@@ -4,13 +4,13 @@ if (!("vimnpmcache" in global)) {
   global.vimnpmcache = {};
 }
 
-const prefix = "  > ";
+let prefix = "  ¤ ";
 
 async function getLatest(package) {
   return new Promise(accept => {
     if (package in global.vimnpmcache) {
       if (global.vimnpmcache[package])
-        accept(`${prefix}Latest ${global.vimnpmcache[package]}`);
+        accept(`${prefix}latest:${global.vimnpmcache[package]}`);
       else accept(`${prefix}No package available`);
     } else {
       https
@@ -24,7 +24,7 @@ async function getLatest(package) {
             if ("dist-tags" in pata) {
               const lp = pata["dist-tags"].latest;
               global.vimnpmcache[package] = lp;
-              accept(`${prefix}Latest ${lp}`);
+              accept(`${prefix}latest:${lp}`);
             } else {
               global.vimnpmcache[package] = false;
               accept(`${prefix}No package available`);
@@ -67,6 +67,11 @@ function getDepLines(bf, devDep = false) {
 async function fetchAll(nvim) {
   const buffer = await nvim.nvim.buffer;
   const bf = await buffer.getLines();
+  const hl_group = "NonText";
+
+  try {
+    prefix = await nvim.nvim.eval("g:vim_package_json_virutaltext_prefix");
+  } catch (error) {}
 
   let dep_lines = [getDepLines(bf), getDepLines(bf, true)];
 
@@ -84,7 +89,7 @@ async function fetchAll(nvim) {
         console.log("error", error);
       }
 
-      await buffer.setVirtualText(1, parseInt(i), [[lp]]);
+      await buffer.setVirtualText(1, parseInt(i), [[lp, hl_group]]);
     }
   });
 }
