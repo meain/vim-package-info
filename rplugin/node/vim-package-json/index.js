@@ -47,11 +47,19 @@ async function fetchAll(nvim) {
   const bf = await buffer.getLines();
   const confType = await nvim.nvim.commandOutput("echo expand('%')");
 
+  // old deps ( do not wanna break anything )
   try {
     prefix = await nvim.nvim.eval("g:vim_package_json_virutaltext_prefix");
   } catch (error) {}
   try {
     hl_group = await nvim.nvim.eval("g:vim_package_json_virutaltext_highlight");
+  } catch (error) {}
+
+  try {
+    prefix = await nvim.nvim.eval("g:vim_package_info_virutaltext_prefix");
+  } catch (error) {}
+  try {
+    hl_group = await nvim.nvim.eval("g:vim_package_info_virutaltext_highlight");
   } catch (error) {}
 
   let dep_lines = parser.getDepLines(bf, confType);
