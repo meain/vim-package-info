@@ -7,12 +7,11 @@ if (!("vimnpmcache" in global)) {
 let prefix = "  ¤ ";
 let hl_group = "NonText";
 
-async function getLatest(package) {
+async function getLatest(package, version) {
   return new Promise(accept => {
     if (package in global.vimnpmcache) {
-      if (global.vimnpmcache[package])
-        accept(`${prefix}latest:${global.vimnpmcache[package]}`);
-      else accept(`${prefix}No package available`);
+      if (global.vimnpmcache[package]) accept(global.vimnpmcache[package]);
+      else accept(false);
     } else {
       https
         .get(`https://registry.npmjs.org/${package}`, resp => {
@@ -25,26 +24,43 @@ async function getLatest(package) {
             if ("dist-tags" in pata) {
               const lp = pata["dist-tags"].latest;
               global.vimnpmcache[package] = lp;
-              accept(`${prefix}latest:${lp}`);
+              accept(lp);
             } else {
               global.vimnpmcache[package] = false;
-              accept(`${prefix}No package available`);
+              accept(false);
             }
           });
         })
         .on("error", err => {
           console.log("Error: " + err.message);
-          accept(`${prefix}No package available`);
+          global.vimnpmcache[package] = false;
+          accept(false);
         });
     }
   });
 }
 
-function getPackageName(line) {
-  const re = /"(.*)" *:/;
+async function formatLatest(package, version) {
+  const latest = await getLatest(package);
+  let lpf = `${prefix}No package available`;
+  if (latest) {
+    lpf = `${prefix}latest:${latest}`;
+  }
+  return lpf;
+}
+
+function getPackageInfo(line) {
+  const info = { name: undefined, version: undefined };
+
+  const re = /['|"](.*)['|"] *:/;
   const vals = re.exec(line);
-  if (1 in vals) return vals[1];
-  return "-----------------------------------------";
+  if (1 in vals) info["name"] = vals[1];
+
+  const re2 = /: *['|"](.*)['|"]/;
+  const vals2 = re2.exec(line);
+  if (1 in vals2) info["version"] = vals2[1];
+
+  return info;
 }
 
 function getDepLines(bf, devDep = false) {
@@ -84,10 +100,10 @@ async function fetchAll(nvim) {
     if (dl[1] < dl[0] || dl[1] < 0) return;
 
     for (let i = dl[0]; i < dl[1]; i++) {
-      const package = getPackageName(bf[i]);
+      const package = getPackageInfo(bf[i]);
       let lp = "No package available";
       try {
-        lp = await getLatest(package);
+        lp = await formatLatest(package.name, package.version);
       } catch (error) {
         console.log("error", error);
       }
