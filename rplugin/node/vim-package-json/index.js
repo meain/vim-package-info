@@ -5,6 +5,7 @@ if (!("vimnpmcache" in global)) {
 }
 
 let prefix = "  ¤ ";
+let hl_group = "NonText";
 
 async function getLatest(package) {
   return new Promise(accept => {
@@ -67,10 +68,12 @@ function getDepLines(bf, devDep = false) {
 async function fetchAll(nvim) {
   const buffer = await nvim.nvim.buffer;
   const bf = await buffer.getLines();
-  const hl_group = "NonText";
 
   try {
     prefix = await nvim.nvim.eval("g:vim_package_json_virutaltext_prefix");
+  } catch (error) {}
+  try {
+    hl_group = await nvim.nvim.eval("g:vim_package_json_virutaltext_highlight");
   } catch (error) {}
 
   let dep_lines = [getDepLines(bf), getDepLines(bf, true)];
