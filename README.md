@@ -1,10 +1,13 @@
-# vim-package-json
+# vim-package-info
 
-Simple things to enhance `package.json` content.
+> Previously `vim-package-json`
 
-As of now, lets you view the latest version of each package in the file.
 
-![image](https://i.imgur.com/5VDcOwE.png)
+It lets you view the latest version of each package of your dependency.
+
+**Currently supports `package.json` and `Cargo.toml`**
+
+![image](https://i.imgur.com/R5K3mC9.png)
 
 Default colors:
 
@@ -19,8 +22,10 @@ Use your favorite plugin manager.
 I use [vim-plug](https://github.com/junegunn/vim-plug).
 
 ```vim
-Plug 'meain/vim-package-json', { 'do': 'npm install' }
+Plug 'meain/vim-package-info', { 'do': 'cd rplugin/node/vim-package-json && npm install' }
 ```
+
+After installing the plugin, run `:UpdateRemotePlugins` to register it with Neovim.
 
 ---
 
@@ -33,20 +38,20 @@ Needs virtual text support. ( Neovim 0.3.2 )
 #### Change prefix
 
 ```
-let g:vim_package_json_virutaltext_prefix = '  ¤ '
+let g:vim_package_info_virutaltext_prefix = '  ¤ '
 ```
 
 ### Change highlight group
 
 ```
-let g:vim_package_json_virutaltext_highlight = 'NonText'
+let g:vim_package_info_virutaltext_highlight = 'NonText'
 ```
 
 There are three other highlight groups that you can change.
 You can change them like this
 
 ```
-hi VimPackageJsonPatch guifg=#8BC34A
-hi VimPackageJsonMinor guifg=#00BCD4
-hi VimPackageJsonMajor guifg=#F44336
+hi VimPackageInfoPatch guifg=#8BC34A
+hi VimPackageInfoMinor guifg=#00BCD4
+hi VimPackageInfoMajor guifg=#F44336
 ```
