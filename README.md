@@ -21,6 +21,11 @@ I use [vim-plug](https://github.com/junegunn/vim-plug).
 Plug 'meain/vim-package-json', { 'do': 'npm install' }
 ```
 
+----
+
+Needs virtual text support. ( Neovim 0.3.2 )
+> Check if `echo has('nvim-0.3.2')` returns 1
+
 ## Configuration
 
 #### Change prefix
