@@ -44,8 +44,12 @@ async function getLatest(package) {
 
 function colorizeDiff(current, latest, hl) {
   if (current[0] === "^" || current[0] === "~") current = current.substr(1);
-  const c = semverUtils.parse(current);
+
+  let c = semverUtils.parse(current);
   const l = semverUtils.parse(latest);
+
+  if (!l) return false;
+  if (!c) c = l;
 
   let cd = [[l.major, hl], [l.minor, hl], [l.patch, hl]];
   if (parseInt(l.major) > parseInt(c.major)) {
@@ -72,11 +76,13 @@ async function formatLatest(package, version, hl) {
   if (latest) {
     // lpf = `${prefix}latest:${latest}`;
     const cd = colorizeDiff(version, latest, hl);
-    let cdf = cd.reduce((acc, cdi) => {
-      return [...acc, cdi, [".", cdi[1]]];
-    }, []);
-    cdf.splice(cdf.length - 1);
-    lpf = [[`${prefix}latest:`, hl], ...cdf];
+    if (cd) {
+      let cdf = cd.reduce((acc, cdi) => {
+        return [...acc, cdi, [".", cdi[1]]];
+      }, []);
+      cdf.splice(cdf.length - 1);
+      lpf = [[`${prefix}latest:`, hl], ...cdf];
+    }
   }
   return lpf;
 }
@@ -86,11 +92,11 @@ function getPackageInfo(line) {
 
   const re = /['|"](.*)['|"] *:/;
   const vals = re.exec(line);
-  if (1 in vals) info["name"] = vals[1];
+  if (vals && 1 in vals) info["name"] = vals[1];
 
   const re2 = /: *['|"](.*)['|"]/;
   const vals2 = re2.exec(line);
-  if (1 in vals2) info["version"] = vals2[1];
+  if (vals2 && 1 in vals2) info["version"] = vals2[1];
 
   return info;
 }
