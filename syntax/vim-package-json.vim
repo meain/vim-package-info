@@ -1,9 +1,9 @@
-if exists('b:vim_package_json_syntax')
+if exists('b:vim_package_info_syntax')
   finish
 endif
 
-highlight default VimPackageJsonPatch guifg=green ctermfg=green
-highlight default VimPackageJsonMinor guifg=cyan ctermfg=cyan
-highlight default VimPackageJsonMajor guifg=red ctermfg=red
+highlight default VimPackageInfoPatch guifg=green ctermfg=green
+highlight default VimPackageInfoMinor guifg=cyan ctermfg=cyan
+highlight default VimPackageInfoMajor guifg=red ctermfg=red
 
-let b:vim_package_json_syntax = 'vim-package-json'
+let b:vim_package_json_syntax = 'vim-package-info'
