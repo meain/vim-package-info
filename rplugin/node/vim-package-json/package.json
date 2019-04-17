@@ -9,5 +9,8 @@
   "keywords": [],
   "author": "Abin Simon <abinsimon10@gmail.com> (meain.io)",
   "license": "MIT",
-  "dependencies": {}
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "semver-utils": "^1.1.4"
+  }
 }

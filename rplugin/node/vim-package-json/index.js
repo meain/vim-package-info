@@ -1,4 +1,6 @@
 const https = require("https");
+const _ = require("lodash");
+var semverUtils = require("semver-utils");
 
 if (!("vimnpmcache" in global)) {
   global.vimnpmcache = {};
@@ -40,11 +42,41 @@ async function getLatest(package, version) {
   });
 }
 
-async function formatLatest(package, version) {
+function colorizeDiff(current, latest, hl) {
+  if (current[0] === "^" || current[0] === "~") current = current.substr(1);
+  const c = semverUtils.parse(current);
+  const l = semverUtils.parse(latest);
+
+  let cd = [[l.major, hl], [l.minor, hl], [l.patch, hl]];
+  if (parseInt(l.major) > parseInt(c.major)) {
+    cd = [
+      [l.major, "VimPackageJsonMajor"],
+      [l.minor, "VimPackageJsonMajor"],
+      [l.patch, "VimPackageJsonMajor"]
+    ];
+  } else if (parseInt(l.minor) > parseInt(c.minor)) {
+    cd = [
+      [l.major, hl],
+      [l.minor, "VimPackageJsonMinor"],
+      [l.patch, "VimPackageJsonMinor"]
+    ];
+  } else if (parseInt(l.patch) > parseInt(c.patch)) {
+    cd = [[l.major, hl], [l.minor, hl], [l.patch, "VimPackageJsonPatch"]];
+  }
+  return cd;
+}
+
+async function formatLatest(package, version, hl) {
   const latest = await getLatest(package);
-  let lpf = `${prefix}No package available`;
+  let lpf = [[`${prefix}No package available`, hl]];
   if (latest) {
-    lpf = `${prefix}latest:${latest}`;
+    // lpf = `${prefix}latest:${latest}`;
+    const cd = colorizeDiff(version, latest, hl);
+    let cdf = cd.reduce((acc, cdi) => {
+      return [...acc, cdi, [".", cdi[1]]];
+    }, []);
+    cdf.splice(cdf.length - 1);
+    lpf = [[`${prefix}latest:`, hl], ...cdf];
   }
   return lpf;
 }
@@ -101,14 +133,15 @@ async function fetchAll(nvim) {
 
     for (let i = dl[0]; i < dl[1]; i++) {
       const package = getPackageInfo(bf[i]);
-      let lp = "No package available";
+      let lp = [""];
       try {
-        lp = await formatLatest(package.name, package.version);
+        lp = await formatLatest(package.name, package.version, hl_group);
+        console.log("lp", lp);
       } catch (error) {
         console.log("error", error);
       }
 
-      await buffer.setVirtualText(1, parseInt(i), [[lp, hl_group]]);
+      await buffer.setVirtualText(1, parseInt(i), [...lp]);
     }
   });
 }
