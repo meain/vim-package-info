@@ -9,7 +9,7 @@ if (!("vimnpmcache" in global)) {
 let prefix = "  ¤ ";
 let hl_group = "NonText";
 
-async function getLatest(package, version) {
+async function getLatest(package) {
   return new Promise(accept => {
     if (package in global.vimnpmcache) {
       if (global.vimnpmcache[package]) accept(global.vimnpmcache[package]);
