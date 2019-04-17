@@ -75,7 +75,7 @@ async function fetchAll(nvim) {
       const package = parser.getPackageInfo(bf[i], confType);
       let lp = [""];
       try {
-        lp = await formatLatest(package.name, package.version, hl_group);
+        lp = await formatLatest(package.name, package.version, hl_group, confType);
       } catch (error) {
         console.log("error", error);
       }
