@@ -4,10 +4,14 @@ if (!("vimnpmcache" in global)) {
   global.vimnpmcache = {};
 }
 
+const prefix = "  > ";
+
 async function getLatest(package) {
   return new Promise(accept => {
     if (package in global.vimnpmcache) {
-      accept(`Latest ${global.vimnpmcache[package]}`);
+      if (global.vimnpmcache[package])
+        accept(`${prefix}Latest ${global.vimnpmcache[package]}`);
+      else accept(`${prefix}No package available`);
     } else {
       https
         .get(`https://registry.npmjs.org/${package}`, resp => {
@@ -16,14 +20,20 @@ async function getLatest(package) {
             data += chunk;
           });
           resp.on("end", () => {
-            const lp = JSON.parse(data)["dist-tags"].latest;
-            global.vimnpmcache[package] = lp;
-            accept(`Latest ${lp}`);
+            const pata = JSON.parse(data);
+            if ("dist-tags" in pata) {
+              const lp = pata["dist-tags"].latest;
+              global.vimnpmcache[package] = lp;
+              accept(`${prefix}Latest ${lp}`);
+            } else {
+              global.vimnpmcache[package] = false;
+              accept(`${prefix}No package available`);
+            }
           });
         })
         .on("error", err => {
           console.log("Error: " + err.message);
-          accept("No package available");
+          accept(`${prefix}No package available`);
         });
     }
   });
@@ -40,7 +50,7 @@ function getDepLines(bf, devDep = false) {
   let spos = -1;
   let epos = -1;
   for (let i = 0; i < bf.length; i++) {
-    if (bf[i].indexOf(devDep ? '"devDependencies"' : '"dependencies"') !== -1) {
+    if (bf[i].indexOf(devDep ? "devDependencies" : "dependencies") !== -1) {
       spos = i;
       for (let j = i; j < bf.length; j++) {
         if (bf[j].indexOf("}") !== -1) {
@@ -80,8 +90,7 @@ async function fetchAll(nvim) {
 }
 
 async function cleanAll(nvim) {
-  const buffer = await nvim.nvim.buffer;
-  await buffer.clearNamespace({ nsId: 1 });
+  await nvim.nvim.buffer.clearNamespace({ nsId: 1 });
 }
 
 module.exports = nvim => {
