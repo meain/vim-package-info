@@ -19,8 +19,10 @@ Use your favorite plugin manager.
 I use [vim-plug](https://github.com/junegunn/vim-plug).
 
 ```vim
-Plug 'meain/vim-package-json', { 'do': 'npm install' }
+Plug 'meain/vim-package-json', { 'do': 'cd rplugin/node/vim-package-json && npm install' }
 ```
+
+After installing the plugin, run `:UpdateRemotePlugins` to register it with Neovim.
 
 ---
 
