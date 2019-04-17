@@ -29,17 +29,6 @@ async function getLatest(package) {
   });
 }
 
-// async function showLatest(nvim, package) {
-//   let lp = "No package available";
-//   try {
-//     lp = await getLatest(package);
-//   } catch (error) {
-//     console.log("error", error);
-//   }
-//
-//   nvim.nvim.command(`echo ${lp}`);
-// }
-
 function getPackageName(line) {
   const re = /"(.*)" *:/;
   const vals = re.exec(line);
@@ -47,11 +36,11 @@ function getPackageName(line) {
   return "-----------------------------------------";
 }
 
-function getDepLines(bf) {
+function getDepLines(bf, devDep = false) {
   let spos = -1;
   let epos = -1;
   for (let i = 0; i < bf.length; i++) {
-    if (bf[i].indexOf('"dependencies"') !== -1) {
+    if (bf[i].indexOf(devDep ? '"devDependencies"' : '"dependencies"') !== -1) {
       spos = i;
       for (let j = i; j < bf.length; j++) {
         if (bf[j].indexOf("}") !== -1) {
@@ -69,64 +58,38 @@ async function fetchAll(nvim) {
   const buffer = await nvim.nvim.buffer;
   const bf = await buffer.getLines();
 
-  let dep_lines = getDepLines(bf);
-  dep_lines[1] = dep_lines[1] - 1;
+  let dep_lines = [getDepLines(bf), getDepLines(bf, true)];
 
-  if (dep_lines[1] < dep_lines[0] || dep_lines[1] < 0) return;
+  dep_lines.forEach(async dl => {
+    dl[1] = dl[1] - 1;
 
-  for (let i = dep_lines[0]; i < dep_lines[1]; i++) {
-    const package = getPackageName(bf[i]);
-    let lp = "No package available";
-    try {
-      lp = await getLatest(package);
-    } catch (error) {
-      console.log("error", error);
+    if (dl[1] < dl[0] || dl[1] < 0) return;
+
+    for (let i = dl[0]; i < dl[1]; i++) {
+      const package = getPackageName(bf[i]);
+      let lp = "No package available";
+      try {
+        lp = await getLatest(package);
+      } catch (error) {
+        console.log("error", error);
+      }
+
+      await buffer.setVirtualText(1, parseInt(i), [[lp]]);
     }
-
-    // await buffer.clearNamespace({ nsId: 1 });
-    await buffer.setVirtualText(1, parseInt(i), [[lp]]);
-  }
+  });
 }
 
-// async function process(nvim) {
-//   console.log("\n\n\n\n\n\n");
-//
-//   const buffer = await nvim.nvim.buffer;
-//
-//   const line = await nvim.nvim.line;
-//   const line_num = await nvim.nvim.commandOutput("echo line('.')");
-//   const dep_lines = getDepLines(await buffer.getLines());
-//   console.log("dep_lines", dep_lines);
-//   if (line_num > dep_lines[0] && line_num < dep_lines[1]) {
-//     const package = getPackageName(line);
-//     let lp = "No package available";
-//     try {
-//       lp = await getLatest(package);
-//     } catch (error) {
-//       console.log("error", error);
-//     }
-//
-//     // await buffer.clearNamespace({ nsId: 1 });
-//     // await buffer.setVirtualText(1, parseInt(line_num) - 1, [[lp]]);
-//   } else {
-//     await buffer.clearNamespace({ nsId: 1 });
-//   }
-// }
+async function cleanAll(nvim) {
+  const buffer = await nvim.nvim.buffer;
+  await buffer.clearNamespace({ nsId: 1 });
+}
 
 module.exports = nvim => {
   nvim.setOptions({ dev: true });
 
-  // nvim.registerAutocmd(
-  //   "CursorMoved",
-  //   async () => {
-  //     await process(nvim);
-  //   },
-  //   {
-  //     pattern: "package.json*"
-  //   }
-  // );
-
-  // add new items to cache on insert leave
+  // remove all virtualtext on insert enter?
+  // add new items to cache on insert leave and update the position of virtualtext
+  // show in grey
 
   nvim.registerAutocmd(
     "BufEnter",
@@ -138,17 +101,14 @@ module.exports = nvim => {
     }
   );
 
-  // Direactly call with package name and echo out the result
-  // nvim.registerCommand(
-  //   "FindLatestVersion",
-  //   async arg => {
-  //     console.log(arg);
-  //     await showLatest(nvim);
-  //   },
-  //   {
-  //     sync: true,
-  //     pattern: "package.json*",
-  //     eval: "expand('<afile>')"
-  //   }
-  // );
+  nvim.registerAutocmd(
+    "InsertLeave",
+    async () => {
+      await cleanAll(nvim);
+      await fetchAll(nvim);
+    },
+    {
+      pattern: "package.json*"
+    }
+  );
 };

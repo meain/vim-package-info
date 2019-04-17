@@ -9,7 +9,5 @@
   "keywords": [],
   "author": "Abin Simon <abinsimon10@gmail.com> (meain.io)",
   "license": "MIT",
-  "dependencies": {
-    "request": "^2.88.0"
-  }
+  "dependencies": {}
 }
