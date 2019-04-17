@@ -92,10 +92,6 @@ async function cleanAll(nvim) {
 module.exports = nvim => {
   nvim.setOptions({ dev: true });
 
-  // remove all virtualtext on insert enter?
-  // add new items to cache on insert leave and update the position of virtualtext
-  // show in grey
-
   nvim.registerAutocmd(
     "BufEnter",
     async () => {
