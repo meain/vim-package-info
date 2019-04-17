@@ -4,7 +4,7 @@ Simple things to enhance `package.json` content.
 
 As of now, lets you view the latest version of each package in the file.
 
-![image](https://i.imgur.com/Mm2stSh.png)
+![image](https://i.imgur.com/grOUvbJ.png)
 
 ## Installation
 
