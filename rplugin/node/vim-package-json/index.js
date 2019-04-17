@@ -142,7 +142,6 @@ async function fetchAll(nvim) {
       let lp = [""];
       try {
         lp = await formatLatest(package.name, package.version, hl_group);
-        console.log("lp", lp);
       } catch (error) {
         console.log("error", error);
       }
