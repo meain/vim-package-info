@@ -1,4 +1,4 @@
-if exists('b:vim_package_info_syntax')
+if exists('b:vim_package_json_syntax')
   finish
 endif
 
