@@ -5,6 +5,7 @@ const parser = require("./parser");
 
 if (!("vimnpmcache" in global)) {
   global.vimnpmcache = {};
+  global.previousBuffer = null;
 }
 
 let prefix = "  ¤ ";
@@ -46,6 +47,12 @@ async function formatLatest(package, version, hl, confType) {
 async function fetchAll(nvim) {
   const buffer = await nvim.nvim.buffer;
   const bf = await buffer.getLines();
+
+  if (bf.join("\n") === global.previousBuffer) return;
+
+  await cleanAll(nvim);
+  global.previousBuffer = bf.join("\n");
+
   const filePath = await nvim.nvim.commandOutput("echo expand('%')");
   const confType = path.basename(filePath);
 
@@ -77,7 +84,12 @@ async function fetchAll(nvim) {
       const package = parser.getPackageInfo(bf[i], confType);
       let lp = [""];
       try {
-        lp = await formatLatest(package.name, package.version, hl_group, confType);
+        lp = await formatLatest(
+          package.name,
+          package.version,
+          hl_group,
+          confType
+        );
       } catch (error) {
         console.log("error", error);
       }
@@ -94,24 +106,10 @@ async function cleanAll(nvim) {
 module.exports = nvim => {
   nvim.setOptions({ dev: true });
 
-  nvim.registerAutocmd(
-    "BufEnter",
-    async () => {
-      await fetchAll(nvim);
-    },
-    {
+  ["BufEnter", "InsertLeave", "CursorHold", "TextChanged"].forEach(e => {
+    nvim.registerAutocmd(e, async () => await fetchAll(nvim), {
       pattern: "*/package.json,*/Cargo.toml"
-    }
-  );
+    });
+  });
 
-  nvim.registerAutocmd(
-    "InsertLeave",
-    async () => {
-      await cleanAll(nvim);
-      await fetchAll(nvim);
-    },
-    {
-      pattern: "*/package.json,*/Cargo.toml"
-    }
-  );
 };
