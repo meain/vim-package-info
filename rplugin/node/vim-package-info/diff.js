@@ -12,18 +12,18 @@ function colorizeDiff(current, latest, hl) {
   let cd = [[l.major, hl], [l.minor, hl], [l.patch, hl]];
   if (parseInt(l.major) > parseInt(c.major)) {
     cd = [
-      [l.major, "VimPackageJsonMajor"],
-      [l.minor, "VimPackageJsonMajor"],
-      [l.patch, "VimPackageJsonMajor"]
+      [l.major, "VimPackageInfoMajor"],
+      [l.minor, "VimPackageInfoMajor"],
+      [l.patch, "VimPackageInfoMajor"]
     ];
   } else if (parseInt(l.minor) > parseInt(c.minor)) {
     cd = [
       [l.major, hl],
-      [l.minor, "VimPackageJsonMinor"],
-      [l.patch, "VimPackageJsonMinor"]
+      [l.minor, "VimPackageInfoMinor"],
+      [l.patch, "VimPackageInfoMinor"]
     ];
   } else if (parseInt(l.patch) > parseInt(c.patch)) {
-    cd = [[l.major, hl], [l.minor, hl], [l.patch, "VimPackageJsonPatch"]];
+    cd = [[l.major, hl], [l.minor, hl], [l.patch, "VimPackageInfoPatch"]];
   }
   return cd;
 }
