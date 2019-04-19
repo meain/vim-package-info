@@ -38,7 +38,7 @@ async function formatLatest(package, version, hl, confType) {
         return [...acc, cdi, [".", cdi[1]]];
       }, []);
       cdf.splice(cdf.length - 1);
-      lpf = [[`${prefix}latest:`, hl], ...cdf];
+      lpf = [[`${prefix}latest: `, hl], ...cdf];
     }
   }
   return lpf;
