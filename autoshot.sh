@@ -1,8 +1,8 @@
-rm images && mkdir images
+rm -rf images && mkdir images
 printf "|\n|\n|" >images/table.md
 shoot() {
     echo $2
-    (alacritty --position 100 20 -d 50 25 -e "$SHELL" -c "nvim $PWD/examples/$1 -c '/dependen' -c ':noh'") &
+    (alacritty --position 100 20 -d 50 25 -e "$SHELL" -c "nvim $PWD/examples/$1 -c ':silent! /dependen' -c ':noh'") &
     PR_PID=$!
     sleep 50 # just wanna be liberal
     screencapture -R 100,263,450,505 "images/$2.png"
