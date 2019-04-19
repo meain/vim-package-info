@@ -1,0 +1,19 @@
+certifi==2018.11.29
+chardet==3.0.4
+falcon==1.4.1
+
+gunicorn==19.9.0
+idna==2.8
+pprint==0.1
+python-mimeparse==1.6.0
+redis==3.0.1
+requests==2.21.0
+
+six==1.12.0 \
+    --hash=sha256:3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c \
+    --hash=sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73
+treelib==1.5.3 \
+    --hash=sha256:3e4ee4ea22ec9e6e5fe5df4f4d6189a9b2c6c6604bd835d692419466e0312f0a
+urllib3==1.24.1 \
+    --hash=sha256:61bf29cada3fc2fbefad4fdf059ea4bd1b4a86d2b6d15e1c7c0b582b9752fe39 \
+    --hash=sha256:de9529817c93f27c8ccbfead6985011db27bd0ddfcdb2d86f3f663385c6a9c22

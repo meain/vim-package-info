@@ -6,6 +6,7 @@ function colorizeDiff(current, latest, hl) {
 
   // stupid semver issue
   for (let i = current.split(".").length; i < 3; i++) current = current + ".0";
+  for (let i = latest.split(".").length; i < 3; i++) latest = latest + ".0";
 
   let c = semverUtils.parse(current);
   const l = semverUtils.parse(latest);
