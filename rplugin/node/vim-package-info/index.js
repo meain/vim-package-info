@@ -102,8 +102,11 @@ async function fetchAll(nvim) {
         console.log("error", error);
       }
 
-      await buffer.setVirtualText(1, parseInt(i), [...lp]);
+      const nbf = await buffer.getLines();
+      if (bf.join("\n") === nbf.join("\n"))
+        await buffer.setVirtualText(1, parseInt(i), [...lp]);
     }
+
   });
 }
 
