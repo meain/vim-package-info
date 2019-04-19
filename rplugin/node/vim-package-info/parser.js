@@ -18,7 +18,7 @@ function isStart(line, confType) {
   for (let i = 0; i < depMarkers[confType].length; i++) {
     const dm = depMarkers[confType][i];
     const depGroup = line.match(dm[0]);
-    if (depGroup) {
+    if (depGroup !== undefined && depGroup !== null) {
       return { depGroupName: depGroup[1], end: dm[1] };
     }
   }
