@@ -71,16 +71,21 @@ async function fetchAll(nvim) {
     hl_group = await nvim.nvim.eval("g:vim_package_info_virutaltext_highlight");
   } catch (error) {}
 
-  let dep_lines = parser.getDepLines(bf, confType);
+  let depGroups = parser.getDepLines(bf, confType);
+  console.log(">>>>>>>>>>>>>>> depGroups", depGroups);
 
-  dep_lines.forEach(async dl => {
+  Object.keys(depGroups).forEach(async dgk => {
+    const dl = depGroups[dgk];
+    console.log("dgk", dgk);
+    console.log("dl", dl)
+
     dl[1] = dl[1] - 1;
 
     if (dl[1] < dl[0] || dl[1] < 0) return;
 
     for (let i = dl[0]; i < dl[1]; i++) {
       if (bf[i].trim() === "") continue;
-      const package = parser.getPackageInfo(bf[i], confType);
+      const package = parser.getPackageInfo(bf[i], confType, bf, dgk);
       let lp = [""];
       try {
         lp = await formatLatest(
@@ -110,5 +115,4 @@ module.exports = nvim => {
       pattern: "*/package.json,*/Cargo.toml"
     });
   });
-
 };
