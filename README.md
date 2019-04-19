@@ -4,7 +4,7 @@
 
 It lets you view the latest version of each package of your dependency.
 
-**Currently supports `package.json` and `Cargo.toml`**
+**Currently supports `package.json`, `Cargo.toml`** and `requirements.txt`
 
 | ![](https://i.imgur.com/pAffll5.png) | ![](https://i.imgur.com/HD9wzk7.png) |
 | :----------------------------------: | :----------------------------------: |
