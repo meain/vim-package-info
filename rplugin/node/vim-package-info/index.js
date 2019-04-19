@@ -48,10 +48,10 @@ async function fetchAll(nvim) {
   const buffer = await nvim.nvim.buffer;
   const bf = await buffer.getLines();
 
-  if (bf.join("\n") === global.previousBuffer) return;
+  // if (bf.join("\n") === global.previousBuffer) return;
 
   await cleanAll(nvim);
-  global.previousBuffer = bf.join("\n");
+  // global.previousBuffer = bf.join("\n");
 
   const filePath = await nvim.nvim.commandOutput("echo expand('%')");
   const confType = path.basename(filePath);
