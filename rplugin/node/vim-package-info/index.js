@@ -13,7 +13,9 @@ let hl_group = "NonText";
 
 async function getLatest(package, confType) {
   const cachedVersion = utils.load(package, confType);
-  if (cachedVersion) return cachedVersion;
+
+  // `false` check as the repo migh not exist
+  if (cachedVersion || cachedVersion === false) return cachedVersion;
 
   const data = await utils.fetchInfo(package, confType);
   if (!data) {
@@ -111,5 +113,4 @@ module.exports = nvim => {
       pattern: "*/package.json,*/Cargo.toml"
     });
   });
-
 };
