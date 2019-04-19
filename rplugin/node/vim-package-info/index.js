@@ -72,12 +72,9 @@ async function fetchAll(nvim) {
   } catch (error) {}
 
   let depGroups = parser.getDepLines(bf, confType);
-  console.log(">>>>>>>>>>>>>>> depGroups", depGroups);
 
   Object.keys(depGroups).forEach(async dgk => {
     const dl = depGroups[dgk];
-    console.log("dgk", dgk);
-    console.log("dl", dl)
 
     dl[1] = dl[1] - 1;
 
@@ -86,6 +83,8 @@ async function fetchAll(nvim) {
     for (let i = dl[0]; i < dl[1]; i++) {
       if (bf[i].trim() === "") continue;
       const package = parser.getPackageInfo(bf[i], confType, bf, dgk);
+      if (package.name === undefined) return;
+
       let lp = [""];
       try {
         lp = await formatLatest(

@@ -10,15 +10,8 @@ const depMarkers = {
   "Cargo.toml": [[/\[(.*dependencies)\]/, /^ *\[.*\].*/]]
 };
 const nameParserRegex = {
-  "package.json": /['|"]([a-zA-Z0-9-_])['|"] *:/,
-  "Cargo.toml": /([a-zA-Z0-9-_]*) *=.*/
-};
-const versionParserRegex = {
-  "package.json": /: *['|"]([a-zA-Z0-9-_.+~^*])['|"]/,
-  "Cargo.toml": [
-    /.*= *['|"]([a-zA-Z0-9-_.+~^*])['|"].*/,
-    /[a-zA-Z0-9-_]* *= *{.*version *= *['|"]([a-zA-Z0-9-_.+~^*])['|"].*}/
-  ]
+  "package.json": /['|"](.*)['|"] *:/,
+  "Cargo.toml": /([a-zA-Z0-9\-_]*) *=.*/
 };
 
 function isStart(line, confType) {
@@ -60,7 +53,6 @@ function getVersion(file, depSelector, dep, confType) {
   let data;
   if (fileType === "toml") data = toml.parse(file.join("\n"));
   else if (fileType === "json") data = JSON.parse(file.join("\n"));
-
   const verinfo = data[depSelector][dep];
 
   if (typeof verinfo === "string") return verinfo;
@@ -74,10 +66,8 @@ function getPackageInfo(line, confType, file, depSelector) {
   if (vals === null || vals === undefined) return info;
   if (1 in vals) info["name"] = vals[1].trim();
 
-  console.log("info['name']", info["name"]);
 
   const ver = getVersion(file, depSelector, info["name"], confType);
-  console.log("ver", ver);
   info.version = ver;
 
   return info;
