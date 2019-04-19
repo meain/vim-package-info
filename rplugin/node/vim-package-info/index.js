@@ -1,3 +1,4 @@
+const path = require("path");
 const utils = require("./utils");
 const diff = require("./diff");
 const parser = require("./parser");
@@ -45,7 +46,8 @@ async function formatLatest(package, version, hl, confType) {
 async function fetchAll(nvim) {
   const buffer = await nvim.nvim.buffer;
   const bf = await buffer.getLines();
-  const confType = await nvim.nvim.commandOutput("echo expand('%')");
+  const filePath = await nvim.nvim.commandOutput("echo expand('%')");
+  const confType = path.basename(filePath);
 
   // old deps ( do not wanna break anything )
   try {
@@ -98,16 +100,7 @@ module.exports = nvim => {
       await fetchAll(nvim);
     },
     {
-      pattern: "Cargo.toml"
-    }
-  );
-  nvim.registerAutocmd(
-    "BufEnter",
-    async () => {
-      await fetchAll(nvim);
-    },
-    {
-      pattern: "package.json"
+      pattern: "*/package.json,*/Cargo.toml"
     }
   );
 
@@ -118,17 +111,7 @@ module.exports = nvim => {
       await fetchAll(nvim);
     },
     {
-      pattern: "Cargo.toml"
-    }
-  );
-  nvim.registerAutocmd(
-    "InsertLeave",
-    async () => {
-      await cleanAll(nvim);
-      await fetchAll(nvim);
-    },
-    {
-      pattern: "package.json"
+      pattern: "*/package.json,*/Cargo.toml"
     }
   );
 };
