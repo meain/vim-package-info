@@ -6,9 +6,9 @@ It lets you view the latest version of each package of your dependency.
 
 **Currently supports `package.json`, `Cargo.toml`** and `requirements.txt`
 
-| ![](https://i.imgur.com/pAffll5.png) | ![](https://i.imgur.com/HD9wzk7.png) |
-| :----------------------------------: | :----------------------------------: |
-|             package.json             |              Cargo.toml              |
+| ![](https://i.imgur.com/YTaFHzs.png) | ![](https://i.imgur.com/HqgozdY.png) | ![](https://i.imgur.com/evCwnHZ.png) |
+| :----------------------------------: | :----------------------------------: | :----------------------------------: |
+|              Cargo.toml              |             package.json             |           requirements.txt           |
 
 Default colors:
 
