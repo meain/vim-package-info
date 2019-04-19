@@ -1,7 +1,11 @@
 var semverUtils = require("semver-utils");
 
 function colorizeDiff(current, latest, hl) {
-  if (current[0] === "^" || current[0] === "~") current = current.substr(1);
+  if (current && (current[0] === "^" || current[0] === "~"))
+    current = current.substr(1);
+
+  // stupid semver issue
+  for (let i = current.split(".").length; i < 3; i++) current = current + ".0";
 
   let c = semverUtils.parse(current);
   const l = semverUtils.parse(latest);

@@ -24,6 +24,7 @@ ansi_term = "0.11.0"
 libc = "0.2.44"
 term_grid = "0.1.7"
 terminal_size = "0.1.8"
+serde = { version = "~1.0",  features = ["derive"] }
 time = "0.1.40"
 users = "0.8.0"
 chrono-humanize = "0.0.11"

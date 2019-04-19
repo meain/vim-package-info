@@ -48,13 +48,18 @@ async function fetchAll(nvim) {
   const buffer = await nvim.nvim.buffer;
   const bf = await buffer.getLines();
 
-  if (bf.join("\n") === global.previousBuffer) return;
-
-  await cleanAll(nvim);
-  global.previousBuffer = bf.join("\n");
+  // if (bf.join("\n") === global.previousBuffer) return;
 
   const filePath = await nvim.nvim.commandOutput("echo expand('%')");
   const confType = path.basename(filePath);
+  const fileType = confType.split(".")[confType.split(".").length - 1];
+
+  // done here so as to check if the file is parseable
+  let data = parser.getParsedFile(bf.join("\n"), fileType);
+  if (!data) return;
+
+  await cleanAll(nvim);
+  // global.previousBuffer = bf.join("\n");
 
   // old deps ( do not wanna break anything )
   try {
@@ -71,17 +76,20 @@ async function fetchAll(nvim) {
     hl_group = await nvim.nvim.eval("g:vim_package_info_virutaltext_highlight");
   } catch (error) {}
 
-  let dep_lines = parser.getDepLines(bf, confType);
+  let depGroups = parser.getDepLines(bf, confType);
 
-  dep_lines.forEach(async dl => {
+  Object.keys(depGroups).forEach(async dgk => {
+    const dl = depGroups[dgk];
+
     dl[1] = dl[1] - 1;
 
     if (dl[1] < dl[0] || dl[1] < 0) return;
 
     for (let i = dl[0]; i < dl[1]; i++) {
       if (bf[i].trim() === "") continue;
+      const package = parser.getPackageInfo(bf[i], confType, data, dgk);
+      if (package.name === undefined) return;
 
-      const package = parser.getPackageInfo(bf[i], confType);
       let lp = [""];
       try {
         lp = await formatLatest(
@@ -106,10 +114,9 @@ async function cleanAll(nvim) {
 module.exports = nvim => {
   nvim.setOptions({ dev: true });
 
-  ["BufEnter", "InsertLeave", "CursorHold", "TextChanged"].forEach(e => {
+  ["BufEnter", "InsertLeave", "TextChanged"].forEach(e => {
     nvim.registerAutocmd(e, async () => await fetchAll(nvim), {
       pattern: "*/package.json,*/Cargo.toml"
     });
   });
-
 };

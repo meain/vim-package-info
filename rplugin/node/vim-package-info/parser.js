@@ -1,26 +1,25 @@
+const toml = require("toml");
+
 // Format:
 // [ [start, end], [start, end] ]
 const depMarkers = {
   "package.json": [
-    [/["|']dependencies["|']/, /\}/],
-    [/["|']devDependencies["|']/, /\}/]
+    [/["|'](dependencies)["|']/, /\}/],
+    [/["|'](devDependencies)["|']/, /\}/]
   ],
-  "Cargo.toml": [[/\[.*dependencies\]/, /\[.*\]/]]
+  "Cargo.toml": [[/\[(.*dependencies)\]/, /^ *\[.*\].*/]]
 };
 const nameParserRegex = {
   "package.json": /['|"](.*)['|"] *:/,
-  "Cargo.toml": /(.*) *=.*/
-};
-const versionParserRegex = {
-  "package.json": /: *['|"](.*)['|"]/,
-  "Cargo.toml": /.*=.*['|"](.*)['|"].*/
+  "Cargo.toml": /([a-zA-Z0-9\-_]*) *=.*/
 };
 
 function isStart(line, confType) {
   for (let i = 0; i < depMarkers[confType].length; i++) {
     const dm = depMarkers[confType][i];
-    if (dm[0].test(line)) {
-      return dm[1];
+    const depGroup = line.match(dm[0]);
+    if (depGroup) {
+      return { depGroupName: depGroup[1], end: dm[1] };
     }
   }
   return false;
@@ -29,9 +28,9 @@ function isStart(line, confType) {
 function getDepLines(bf, confType) {
   let spos = -1;
   let epos = -1;
-  let groups = [];
+  let groups = {};
   for (let i = 0; i < bf.length; i++) {
-    const end = isStart(bf[i], confType);
+    const { end, depGroupName } = isStart(bf[i], confType);
     if (end) {
       spos = i;
       for (let j = i + 1; j < bf.length; j++) {
@@ -40,7 +39,7 @@ function getDepLines(bf, confType) {
           break;
         }
       }
-      groups.push([spos + 1, epos + 1]);
+      groups[depGroupName] = [spos + 1, epos + 1];
       spos = -1;
       epos = -1;
     }
@@ -48,18 +47,31 @@ function getDepLines(bf, confType) {
   return groups;
 }
 
-function getPackageInfo(line, confType) {
+function getParsedFile(file, fileType) {
+  let data;
+  if (fileType === "toml") data = toml.parse(file);
+  else if (fileType === "json") data = JSON.parse(file);
+  return data;
+}
+
+function getVersion(data, depSelector, dep) {
+  const verinfo = data[depSelector][dep];
+
+  if (typeof verinfo === "string") return verinfo;
+  return verinfo.version; // for Cargo.toml
+}
+
+function getPackageInfo(line, confType, data, depSelector) {
   const info = { name: undefined, version: undefined };
 
-  const re = nameParserRegex[confType];
-  const vals = re.exec(line);
-  if (vals && 1 in vals) info["name"] = vals[1];
+  const vals = line.match(nameParserRegex[confType]);
+  if (vals === null || vals === undefined) return info;
+  if (1 in vals) info["name"] = vals[1].trim();
 
-  const re2 = versionParserRegex[confType];
-  const vals2 = re2.exec(line);
-  if (vals2 && 1 in vals2) info["version"] = vals2[1];
+  const ver = getVersion(data, depSelector, info["name"], confType);
+  info.version = ver;
 
   return info;
 }
 
-module.exports = { getDepLines, getPackageInfo };
+module.exports = { getDepLines, getPackageInfo, getParsedFile };
