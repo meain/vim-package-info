@@ -47,30 +47,31 @@ function getDepLines(bf, confType) {
   return groups;
 }
 
-function getVersion(file, depSelector, dep, confType) {
-  const fileType = confType.split(".")[confType.split(".").length - 1];
-
+function getParsedFile(file, fileType) {
   let data;
-  if (fileType === "toml") data = toml.parse(file.join("\n"));
-  else if (fileType === "json") data = JSON.parse(file.join("\n"));
+  if (fileType === "toml") data = toml.parse(file);
+  else if (fileType === "json") data = JSON.parse(file);
+  return data;
+}
+
+function getVersion(data, depSelector, dep) {
   const verinfo = data[depSelector][dep];
 
   if (typeof verinfo === "string") return verinfo;
   return verinfo.version; // for Cargo.toml
 }
 
-function getPackageInfo(line, confType, file, depSelector) {
+function getPackageInfo(line, confType, data, depSelector) {
   const info = { name: undefined, version: undefined };
 
   const vals = line.match(nameParserRegex[confType]);
   if (vals === null || vals === undefined) return info;
   if (1 in vals) info["name"] = vals[1].trim();
 
-
-  const ver = getVersion(file, depSelector, info["name"], confType);
+  const ver = getVersion(data, depSelector, info["name"], confType);
   info.version = ver;
 
   return info;
 }
 
-module.exports = { getDepLines, getPackageInfo };
+module.exports = { getDepLines, getPackageInfo, getParsedFile };

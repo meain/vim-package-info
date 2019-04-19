@@ -50,11 +50,16 @@ async function fetchAll(nvim) {
 
   // if (bf.join("\n") === global.previousBuffer) return;
 
-  await cleanAll(nvim);
-  // global.previousBuffer = bf.join("\n");
-
   const filePath = await nvim.nvim.commandOutput("echo expand('%')");
   const confType = path.basename(filePath);
+  const fileType = confType.split(".")[confType.split(".").length - 1];
+
+  // done here so as to check if the file is parseable
+  let data = parser.getParsedFile(bf.join("\n"), fileType);
+  if (!data) return;
+
+  await cleanAll(nvim);
+  // global.previousBuffer = bf.join("\n");
 
   // old deps ( do not wanna break anything )
   try {
@@ -82,7 +87,7 @@ async function fetchAll(nvim) {
 
     for (let i = dl[0]; i < dl[1]; i++) {
       if (bf[i].trim() === "") continue;
-      const package = parser.getPackageInfo(bf[i], confType, bf, dgk);
+      const package = parser.getPackageInfo(bf[i], confType, data, dgk);
       if (package.name === undefined) return;
 
       let lp = [""];
