@@ -109,7 +109,7 @@ async function cleanAll(nvim) {
 module.exports = nvim => {
   nvim.setOptions({ dev: true });
 
-  ["BufEnter", "InsertLeave", "CursorHold", "TextChanged"].forEach(e => {
+  ["BufEnter", "InsertLeave", "TextChanged"].forEach(e => {
     nvim.registerAutocmd(e, async () => await fetchAll(nvim), {
       pattern: "*/package.json,*/Cargo.toml"
     });
