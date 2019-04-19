@@ -5,15 +5,18 @@ const depMarkers = {
     [/["|']dependencies["|']/, /\}/],
     [/["|']devDependencies["|']/, /\}/]
   ],
-  "Cargo.toml": [[/\[.*dependencies\]/, /\[.*\]/]]
+  "Cargo.toml": [[/\[.*dependencies\]/, /^ *\[.*\].*/]]
 };
 const nameParserRegex = {
-  "package.json": /['|"](.*)['|"] *:/,
-  "Cargo.toml": /(.*) *=.*/
+  "package.json": /['|"]([a-zA-Z0-9-_])['|"] *:/,
+  "Cargo.toml": /([a-zA-Z0-9-_]*) *=.*/
 };
 const versionParserRegex = {
-  "package.json": /: *['|"](.*)['|"]/,
-  "Cargo.toml": /.*=.*['|"](.*)['|"].*/
+  "package.json": /: *['|"]([a-zA-Z0-9-_.+~^*])['|"]/,
+  "Cargo.toml": [
+    /.*= *['|"]([a-zA-Z0-9-_.+~^*])['|"].*/,
+    /[a-zA-Z0-9-_]* *= *{.*version *= *['|"]([a-zA-Z0-9-_.+~^*])['|"].*}/
+  ]
 };
 
 function isStart(line, confType) {
@@ -49,15 +52,28 @@ function getDepLines(bf, confType) {
 }
 
 function getPackageInfo(line, confType) {
+  console.log("line", line);
   const info = { name: undefined, version: undefined };
 
   const re = nameParserRegex[confType];
-  const vals = re.exec(line);
+  const vals = line.match(re);
   if (vals && 1 in vals) info["name"] = vals[1];
 
-  const re2 = versionParserRegex[confType];
-  const vals2 = re2.exec(line);
-  if (vals2 && 1 in vals2) info["version"] = vals2[1];
+  console.log("info['name']", info["name"]);
+
+  let vprs =
+    versionParserRegex[confType] instanceof Array
+      ? versionParserRegex[confType]
+      : [versionParserRegex[confType]];
+
+  for (let i = 0; i < vprs.length; i++) {
+    const vals2 = line.match(vprs[i]);
+    console.log("vals2", vals2);
+    if (vals2 !== null && 1 in vals2) {
+      info["version"] = vals2[1];
+      break;
+    }
+  }
 
   return info;
 }

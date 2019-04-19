@@ -80,7 +80,6 @@ async function fetchAll(nvim) {
 
     for (let i = dl[0]; i < dl[1]; i++) {
       if (bf[i].trim() === "") continue;
-
       const package = parser.getPackageInfo(bf[i], confType);
       let lp = [""];
       try {

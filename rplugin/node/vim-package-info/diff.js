@@ -1,13 +1,17 @@
 var semverUtils = require("semver-utils");
 
 function colorizeDiff(current, latest, hl) {
-  if (current[0] === "^" || current[0] === "~") current = current.substr(1);
+  console.log("current", current)
+  if (current && (current[0] === "^" || current[0] === "~"))
+    current = current.substr(1);
 
   let c = semverUtils.parse(current);
   const l = semverUtils.parse(latest);
 
   if (!l) return false;
   if (!c) c = l;
+  console.log("l", l);
+  console.log("c", c);
 
   let cd = [[l.major, hl], [l.minor, hl], [l.patch, hl]];
   if (parseInt(l.major) > parseInt(c.major)) {
