@@ -88,9 +88,9 @@ async function fetchAll(nvim) {
     for (let i = dl[0]; i < dl[1]; i++) {
       if (bf[i].trim() === "") continue;
       const package = parser.getPackageInfo(bf[i], confType, data, dgk);
-      if (package.name === undefined) return;
+      if (package.name === undefined) continue;
 
-      let lp = [""];
+      let lp = [[""]];
       try {
         lp = await formatLatest(
           package.name,
@@ -106,7 +106,6 @@ async function fetchAll(nvim) {
       if (bf.join("\n") === nbf.join("\n"))
         await buffer.setVirtualText(1, parseInt(i), [...lp]);
     }
-
   });
 }
 
@@ -119,7 +118,7 @@ module.exports = nvim => {
 
   ["BufEnter", "InsertLeave", "TextChanged"].forEach(e => {
     nvim.registerAutocmd(e, async () => await fetchAll(nvim), {
-      pattern: "*/package.json,*/Cargo.toml"
+      pattern: "*/package.json,*/Cargo.toml,*/requirements.txt"
     });
   });
 };

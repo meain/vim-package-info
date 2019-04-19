@@ -5,7 +5,8 @@ if (!("vimnpmcache" in global)) {
   // but there might be a single project with both package.json and Cargo.toml
   global.vimnpmcache = {
     "package.json": {},
-    "Cargo.toml": {}
+    "Cargo.toml": {},
+    "requirements.txt": {}
   };
 }
 
@@ -15,6 +16,8 @@ function getUrl(package, confType) {
       return `https://registry.npmjs.org/${package}`;
     case "Cargo.toml":
       return `https://crates.io/api/v1/crates/${package}`;
+    case "requirements.txt":
+      return `https://pypi.org/pypi/${package}/json`;
     default:
       return false;
   }
@@ -32,6 +35,12 @@ function getLatestVersion(data, confType) {
       if ("crate" in data) {
         return data["crate"].max_version;
       }
+      break;
+    case "requirements.txt":
+      if ("info" in data) {
+        return data["info"].version;
+      }
+      break;
   }
   return false;
 }
