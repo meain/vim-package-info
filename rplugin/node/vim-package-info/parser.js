@@ -13,7 +13,7 @@ const depMarkers = {
 const nameParserRegex = {
   "package.json": /['|"](.*)['|"] *:/,
   "Cargo.toml": /([a-zA-Z0-9\-_]*) *=.*/,
-  "requirements.txt": /^ *([a-zA-Z_]+[a-zA-Z0-9\-_]*) *==.*/
+  "requirements.txt": /^ *([a-zA-Z_]+[a-zA-Z0-9\-_]*).*/
 };
 
 function isStart(line, confType) {
@@ -37,7 +37,7 @@ function getDepLines(bf, confType) {
   for (let i = 0; i < bf.length; i++) {
     const { end, depGroupName } = isStart(bf[i], confType);
     if (end === null) {
-      groups[depGroupName] = [0, bf.length];
+      groups[depGroupName] = [0, bf.length + 1];
       break;
     }
     if (end) {
@@ -67,7 +67,14 @@ function getParsedFile(file, fileType) {
 function getVersion(data, depSelector, dep, line) {
   // will have to pass in line and parse from it
   // well it is string 'null' . Deal with it
-  if (depSelector === "null") return line.split("==")[1].split("\\")[0].trim();
+  if (depSelector === "null") {
+    if (line.indexOf("==") !== -1)
+      return line
+        .split("==")[1]
+        .split("\\")[0]
+        .trim();
+    else return line.trim();
+  }
 
   const verinfo = data[depSelector][dep];
 
