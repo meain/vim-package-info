@@ -52,7 +52,7 @@ async function fetchAll(nvim) {
 
   const filePath = await nvim.nvim.commandOutput("echo expand('%')");
   const confType = path.basename(filePath);
-  const fileType = confType.split(".")[confType.split(".").length - 1];
+  const fileType = await nvim.nvim.commandOutput("echo &filetype");
 
   // done here so as to check if the file is parseable
   let data = parser.getParsedFile(bf.join("\n"), fileType);
@@ -118,7 +118,7 @@ module.exports = nvim => {
 
   ["BufEnter", "InsertLeave", "TextChanged"].forEach(e => {
     nvim.registerAutocmd(e, async () => await fetchAll(nvim), {
-      pattern: "*/package.json,*/Cargo.toml,*/requirements.txt"
+      pattern: "*/package.json,*/Cargo.toml,*/requirements.txt,*/Pipfile"
     });
   });
 };

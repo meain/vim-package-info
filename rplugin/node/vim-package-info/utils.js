@@ -7,6 +7,7 @@ if (!("vimnpmcache" in global)) {
     "package.json": {},
     "Cargo.toml": {},
     "requirements.txt": {},
+    "Pipfile": {}
   };
 }
 
@@ -17,6 +18,7 @@ function getUrl(package, confType) {
     case "Cargo.toml":
       return `https://crates.io/api/v1/crates/${package}`;
     case "requirements.txt":
+    case "Pipfile":
       return `https://pypi.org/pypi/${package}/json`;
     default:
       return false;
@@ -37,6 +39,7 @@ function getLatestVersion(data, confType) {
       }
       break;
     case "requirements.txt":
+    case "Pipfile":
       if ("info" in data) {
         return data["info"].version;
       }
