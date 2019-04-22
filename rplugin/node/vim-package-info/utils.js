@@ -77,4 +77,4 @@ function load(package, confType) {
   return false;
 }
 
-module.exports = { fetchInfo, getLatestVersion, save, load };
+module.exports = { fetchInfo, getLatestVersion, save, load, getUrl };

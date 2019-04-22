@@ -4,13 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "keywords": [],
   "author": "Abin Simon <abinsimon10@gmail.com> (meain.io)",
   "license": "MIT",
   "dependencies": {
     "follow-redirects": "^1.7.0",
+    "mocha": "^6.1.4",
     "semver-utils": "^1.1.4",
     "toml": "^3.0.0"
   }

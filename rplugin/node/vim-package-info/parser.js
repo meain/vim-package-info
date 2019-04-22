@@ -3,17 +3,14 @@ const toml = require("toml");
 // Format:
 // [ [start, end], [start, end] ]
 const depMarkers = {
-  "package.json": [
-    [/["|'](dependencies)["|']/, /\}/],
-    [/["|'](devDependencies)["|']/, /\}/]
-  ],
+  "package.json": [[/["|'](dependencies)["|']/, /\}/], [/["|'](devDependencies)["|']/, /\}/]],
   "Cargo.toml": [[/\[(.*dependencies)\]/, /^ *\[.*\].*/]],
-  "requirements.txt": null
+  "requirements.txt": null,
 };
 const nameParserRegex = {
   "package.json": /['|"](.*)['|"] *:/,
   "Cargo.toml": /([a-zA-Z0-9\-_]*) *=.*/,
-  "requirements.txt": /^ *([a-zA-Z_]+[a-zA-Z0-9\-_]*).*/
+  "requirements.txt": /^ *([a-zA-Z_]+[a-zA-Z0-9\-_]*).*/,
 };
 
 function isStart(line, confType) {
