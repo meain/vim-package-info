@@ -18,8 +18,10 @@ Default colors:
 
 ## Installation
 
-Use your favorite plugin manager.
+> Make sure you have node support for neovim.
+> Run the command `npm install -g neovim` to add it. [#20](https://github.com/meain/vim-package-info/issues/20)
 
+Use your favorite plugin manager to install the plugin.
 I use [vim-plug](https://github.com/junegunn/vim-plug).
 
 ```vim
