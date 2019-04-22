@@ -59,6 +59,15 @@ hi VimPackageInfoMinor guifg=#00BCD4
 hi VimPackageInfoMajor guifg=#F44336
 ```
 
+
+## Possible issues
+
+The plugin might conflict with [ALE](https://github.com/w0rp/ale) or any other plugins that use `virtualtext`.
+This is because `virtualtext` context is the same for all the plugins and if one clears the `virtualtext`
+it will clear the `virutaltext` that was made by all plugins.
+
+Not a lot can be done about this, but in the case of ALE you can checkout [#14](https://github.com/meain/vim-package-info/issues/14).
+
 ## Development
 
 ### Adding a new config file type
