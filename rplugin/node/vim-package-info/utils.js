@@ -1,4 +1,4 @@
-const https = require("https");
+const https = require('follow-redirects').https;
 
 if (!("vimnpmcache" in global)) {
   // you might think that we do not have to have two diffent objects
