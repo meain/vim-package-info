@@ -1,4 +1,4 @@
-const https = require('follow-redirects').https;
+const https = require("follow-redirects").https;
 
 if (!("vimnpmcache" in global)) {
   // you might think that we do not have to have two diffent objects
@@ -6,7 +6,7 @@ if (!("vimnpmcache" in global)) {
   global.vimnpmcache = {
     "package.json": {},
     "Cargo.toml": {},
-    "requirements.txt": {}
+    "requirements.txt": {},
   };
 }
 
@@ -73,8 +73,7 @@ function save(package, confType, version) {
 }
 
 function load(package, confType) {
-  if (package in global.vimnpmcache[confType])
-    return global.vimnpmcache[confType][package];
+  if (package in global.vimnpmcache[confType]) return global.vimnpmcache[confType][package];
   return false;
 }
 
