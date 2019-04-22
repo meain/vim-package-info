@@ -99,10 +99,47 @@ const tests = [
           },
           {
             line: "six==1.12.0 \\",
-            depSelector: 'null',
+            depSelector: "null",
             output: {
               name: "six",
               version: "1.12.0",
+            },
+          },
+        ],
+      },
+    },
+  },
+
+  {
+    name: "Pipfile (Python)",
+    file: "Pipfile",
+    type: "toml",
+    tests: {
+      url: {
+        package: "pylint",
+        url: "https://pypi.org/pypi/pylint/json",
+      },
+      dep_lines: {
+        packages: [10, 16],
+        "dev-packages": [6, 10],
+      },
+      version_extraction: {
+        data: { packages: { "tvdb-api": "2.0" }, "dev-packages": { pylint: "2.1.1" } },
+        checks: [
+          {
+            line: 'tvdb-api = ">=2.0"',
+            depSelector: "packages",
+            output: {
+              name: "tvdb-api",
+              version: "2.0",
+            },
+          },
+          {
+            line: 'pylint = ">=2.1.1"',
+            depSelector: "dev-packages",
+            output: {
+              name: "pylint",
+              version: "2.1.1",
             },
           },
         ],
