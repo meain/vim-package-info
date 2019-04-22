@@ -1,6 +1,4 @@
-# vim-package-info
-
-> Previously `vim-package-json`
+# vim-package-info  ![](https://travis-ci.org/meain/vim-package-info.svg?branch=master)
 
 It lets you view the latest version of each package of your dependency.
 
