@@ -4,7 +4,6 @@ const parser = require("../rplugin/node/vim-package-info/parser");
 const utils = require("../rplugin/node/vim-package-info/utils");
 
 const tests = require("./options").tests;
-console.log("tests:", tests);
 
 tests.forEach(test => {
   const file = String(fs.readFileSync(`examples/${test.file}`));
