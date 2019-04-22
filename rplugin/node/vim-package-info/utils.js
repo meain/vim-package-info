@@ -4,21 +4,41 @@ if (!("vimnpmcache" in global)) {
   // you might think that we do not have to have two diffent objects
   // but there might be a single project with both package.json and Cargo.toml
   global.vimnpmcache = {
-    "package.json": {},
-    "Cargo.toml": {},
-    "requirements.txt": {},
-    "Pipfile": {}
+    "javascript": {},
+    "rust": {},
+    "python:requirements": {},
+    "python:pipfile": {},
+    "python:pyproject": {}
   };
+}
+
+function determineFileKind(filename) {
+  if (filename.match(/^.*?requirements.txt$/)) {
+    return "python:requirements";
+  }
+  if (filename.match(/^pyproject.toml$/)) {
+    return "python:pyproject";
+  }
+  if (filename.match(/^Pipfile/)) {
+    return "python:pipfile";
+  }
+  if (filename.match(/^Cargo.toml$/)) {
+    return "rust";
+  }
+  if (filename.match(/^package.json$/)) {
+    return "javascript";
+  }
 }
 
 function getUrl(package, confType) {
   switch (confType) {
-    case "package.json":
+    case "javascript":
       return `https://registry.npmjs.org/${package}`;
-    case "Cargo.toml":
+    case "rust":
       return `https://crates.io/api/v1/crates/${package}`;
-    case "requirements.txt":
-    case "Pipfile":
+    case "python:requirements":
+    case "python:pipfile":
+    case "python:pyproject":
       return `https://pypi.org/pypi/${package}/json`;
     default:
       return false;
@@ -28,18 +48,19 @@ function getUrl(package, confType) {
 function getLatestVersion(data, confType) {
   data = JSON.parse(data);
   switch (confType) {
-    case "package.json":
+    case "javascript":
       if ("dist-tags" in data) {
         return data["dist-tags"].latest;
       }
       break;
-    case "Cargo.toml":
+    case "rust":
       if ("crate" in data) {
         return data["crate"].max_version;
       }
       break;
-    case "requirements.txt":
-    case "Pipfile":
+    case "python:requirements":
+    case "python:pipfile":
+    case "python:pyproject":
       if ("info" in data) {
         return data["info"].version;
       }
@@ -80,4 +101,4 @@ function load(package, confType) {
   return false;
 }
 
-module.exports = { fetchInfo, getLatestVersion, save, load, getUrl };
+module.exports = { fetchInfo, getLatestVersion, save, load, getUrl, determineFileKind };
