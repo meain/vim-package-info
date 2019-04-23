@@ -2,7 +2,11 @@ var semverUtils = require("semver-utils");
 
 function colorizeDiff(current, latest, hl) {
   // parse current version number (e.g. ">=1.0", "^1.0", "~1.0" -> "1.0")
-  current = current.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0];
+  if (current) {
+    let currentStripped = current.match(/(\d+\.)?(\d+\.)?(\*|\d+)/);
+    if (current) current = currentStripped[0];
+    else current = latest;
+  } else current = latest;
 
   // stupid semver issue
   for (let i = current.split(".").length; i < 3; i++) current = current + ".0";
@@ -19,14 +23,10 @@ function colorizeDiff(current, latest, hl) {
     cd = [
       [l.major, "VimPackageInfoMajor"],
       [l.minor, "VimPackageInfoMajor"],
-      [l.patch, "VimPackageInfoMajor"]
+      [l.patch, "VimPackageInfoMajor"],
     ];
   } else if (parseInt(l.minor) > parseInt(c.minor)) {
-    cd = [
-      [l.major, hl],
-      [l.minor, "VimPackageInfoMinor"],
-      [l.patch, "VimPackageInfoMinor"]
-    ];
+    cd = [[l.major, hl], [l.minor, "VimPackageInfoMinor"], [l.patch, "VimPackageInfoMinor"]];
   } else if (parseInt(l.patch) > parseInt(c.patch)) {
     cd = [[l.major, hl], [l.minor, hl], [l.patch, "VimPackageInfoPatch"]];
   }
