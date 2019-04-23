@@ -31,5 +31,13 @@ describe("General checks", function() {
         ["1", "NonText"],
       ]);
     });
+
+    it("return proper diff output without current version", function() {
+      assert.deepEqual(diff.colorizeDiff("", "1.0.1", "NonText"), [
+        ["1", "NonText"],
+        ["0", "NonText"],
+        ["1", "NonText"],
+      ]);
+    });
   });
 });
