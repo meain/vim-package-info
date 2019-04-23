@@ -6,11 +6,13 @@ const depMarkers = {
   "package.json": [[/["|'](dependencies)["|']/, /\}/], [/["|'](devDependencies)["|']/, /\}/]],
   "Cargo.toml": [[/\[(.*dependencies)\]/, /^ *\[.*\].*/]],
   "requirements.txt": null,
+  "Pipfile": [[/\[(packages)\]/, /^ *\[.*\].*/], [/\[(dev-packages)\]/, /^ *\[.*\].*/]]
 };
 const nameParserRegex = {
   "package.json": /['|"](.*)['|"] *:/,
   "Cargo.toml": /([a-zA-Z0-9\-_]*) *=.*/,
   "requirements.txt": /^ *([a-zA-Z_]+[a-zA-Z0-9\-_]*).*/,
+  "Pipfile": /"?([a-zA-Z0-9\-_]*)"? *=.*/
 };
 
 function isStart(line, confType) {
@@ -57,7 +59,7 @@ function getParsedFile(file, fileType) {
   let data;
   if (fileType === "toml") data = toml.parse(file);
   else if (fileType === "json") data = JSON.parse(file);
-  else if (fileType === "txt") data = file;
+  else if (fileType === "text") data = file;
   return data;
 }
 
