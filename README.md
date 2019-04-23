@@ -1,10 +1,10 @@
-# vim-package-info  ![](https://travis-ci.org/meain/vim-package-info.svg?branch=master)
+# vim-package-info ![](https://travis-ci.org/meain/vim-package-info.svg?branch=master)
 
 It lets you view the latest version of each package of your dependency.
 
 **Currently supports `package.json`, `Cargo.toml`, `requirements.txt` and `Pipfile`**
 
-| ![](https://i.imgur.com/YTaFHzs.png) | ![](https://i.imgur.com/HqgozdY.png) | ![](https://i.imgur.com/evCwnHZ.png) | ![]() |
+| ![](https://i.imgur.com/YTaFHzs.png) | ![](https://i.imgur.com/HqgozdY.png) | ![](https://i.imgur.com/evCwnHZ.png) | ![](https://i.imgur.com/PzX89H1.png) |
 | :----------------------------------: | :----------------------------------: | :----------------------------------: | :----------------------------------: |
 |              Cargo.toml              |             package.json             |           requirements.txt           |               Pipfile                |
 
@@ -56,7 +56,6 @@ hi VimPackageInfoPatch guifg=#8BC34A
 hi VimPackageInfoMinor guifg=#00BCD4
 hi VimPackageInfoMajor guifg=#F44336
 ```
-
 
 ## Possible issues
 

@@ -21,6 +21,10 @@ shoot() {
     printf "$NL1\n$MID:---:|\n$NL2" >images/table.md
 }
 
-for file in $(ls examples); do
-    shoot "$file" "$(basename $file)"
-done
+if [ -z $1 ]; then
+    for file in $(ls examples); do
+        shoot "$file" "$(basename $file)"
+    done
+else
+    shoot "$1" "$(basename $1)"
+fi
