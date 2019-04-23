@@ -105,6 +105,14 @@ const tests = [
               version: "1.12.0",
             },
           },
+          {
+            line: "requests",
+            depSelector: "null",
+            output: {
+              name: "requests",
+              version: "",
+            },
+          },
         ],
       },
     },

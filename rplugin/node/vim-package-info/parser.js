@@ -6,13 +6,13 @@ const depMarkers = {
   "package.json": [[/["|'](dependencies)["|']/, /\}/], [/["|'](devDependencies)["|']/, /\}/]],
   "Cargo.toml": [[/\[(.*dependencies)\]/, /^ *\[.*\].*/]],
   "requirements.txt": null,
-  "Pipfile": [[/\[(packages)\]/, /^ *\[.*\].*/], [/\[(dev-packages)\]/, /^ *\[.*\].*/]]
+  Pipfile: [[/\[(packages)\]/, /^ *\[.*\].*/], [/\[(dev-packages)\]/, /^ *\[.*\].*/]],
 };
 const nameParserRegex = {
   "package.json": /['|"](.*)['|"] *:/,
   "Cargo.toml": /([a-zA-Z0-9\-_]*) *=.*/,
   "requirements.txt": /^ *([a-zA-Z_]+[a-zA-Z0-9\-_]*).*/,
-  "Pipfile": /"?([a-zA-Z0-9\-_]*)"? *=.*/
+  Pipfile: /"?([a-zA-Z0-9\-_]*)"? *=.*/,
 };
 
 function isStart(line, confType) {
@@ -72,7 +72,7 @@ function getVersion(data, depSelector, dep, line) {
         .split("==")[1]
         .split("\\")[0]
         .trim();
-    else return line.trim();
+    else return "";
   }
 
   const verinfo = data[depSelector][dep];
