@@ -154,6 +154,43 @@ const tests = [
       },
     },
   },
+
+  {
+    name: "pyproject (Python)",
+    file: "pyproject.toml",
+    type: "toml",
+    tests: {
+      url: {
+        package: "pylint",
+        url: "https://pypi.org/pypi/pylint/json",
+      },
+      dep_lines: {
+        "tool.poetry.dependencies": [5, 13],
+        "tool.poetry.dev-dependencies": [13, 17],
+      },
+      version_extraction: {
+        data: { packages: { "tvdb-api": "2.0" }, "dev-packages": { pylint: "2.1.1" } },
+        checks: [
+          {
+            line: 'tvdb-api = ">=2.0"',
+            depSelector: "packages",
+            output: {
+              name: "tvdb-api",
+              version: "2.0",
+            },
+          },
+          {
+            line: 'pylint = ">=2.1.1"',
+            depSelector: "dev-packages",
+            output: {
+              name: "pylint",
+              version: "2.1.1",
+            },
+          },
+        ],
+      },
+    },
+  },
 ];
 
 module.exports = { tests };

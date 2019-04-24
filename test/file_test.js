@@ -8,16 +8,18 @@ const tests = require("./options").tests;
 tests.forEach(test => {
   const file = String(fs.readFileSync(`examples/${test.file}`));
 
+  const fileKind = utils.determineFileKind(test.file);
+
   describe(test.name, function() {
     describe("utils", function() {
       it("return proper url", function() {
-        assert.equal(utils.getUrl(test.tests.url.package, test.file), test.tests.url.url);
+        assert.equal(utils.getUrl(test.tests.url.package, fileKind), test.tests.url.url);
       });
     });
 
     describe("parser", function() {
       it("gets proper dep lines", function() {
-        assert.deepEqual(parser.getDepLines(file.split("\n"), test.file), test.tests.dep_lines);
+        assert.deepEqual(parser.getDepLines(file.split("\n"), fileKind), test.tests.dep_lines);
       });
 
       it("gets proper version extracted", function() {
@@ -25,7 +27,7 @@ tests.forEach(test => {
           assert.deepEqual(
             parser.getPackageInfo(
               line.line,
-              test.file,
+              fileKind,
               test.tests.version_extraction.data,
               line.depSelector
             ),

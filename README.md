@@ -2,11 +2,19 @@
 
 It lets you view the latest version of each package of your dependency.
 
-**Currently supports `package.json`, `Cargo.toml`, `requirements.txt` and `Pipfile`**
+**Currently supports:**
+ * javascript:
+   * `package.json`
+ * rust:
+   * `Cargo.toml`
+ * python:
+   * `requirements.txt`
+   * `Pipfile`
+   * `pyproject.toml`
 
-| ![](https://i.imgur.com/YTaFHzs.png) | ![](https://i.imgur.com/HqgozdY.png) | ![](https://i.imgur.com/evCwnHZ.png) | ![](https://i.imgur.com/PzX89H1.png) |
-| :----------------------------------: | :----------------------------------: | :----------------------------------: | :----------------------------------: |
-|              Cargo.toml              |             package.json             |           requirements.txt           |               Pipfile                |
+| ![](https://i.imgur.com/YTaFHzs.png) | ![](https://i.imgur.com/HqgozdY.png) | ![](https://i.imgur.com/evCwnHZ.png) | ![](https://i.imgur.com/PzX89H1.png) | ![](https://i.imgur.com/s6Cu8oZ.png) |
+| :----------------------------------: | :----------------------------------: | :----------------------------------: | :----------------------------------: | :----------------------------------: |
+|              Cargo.toml              |             package.json             |           requirements.txt           |               Pipfile                |             pyproject.toml           |
 
 Default colors:
 

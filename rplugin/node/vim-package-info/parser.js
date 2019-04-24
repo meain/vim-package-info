@@ -3,16 +3,18 @@ const toml = require("toml");
 // Format:
 // [ [start, end], [start, end] ]
 const depMarkers = {
-  "package.json": [[/["|'](dependencies)["|']/, /\}/], [/["|'](devDependencies)["|']/, /\}/]],
-  "Cargo.toml": [[/\[(.*dependencies)\]/, /^ *\[.*\].*/]],
-  "requirements.txt": null,
-  Pipfile: [[/\[(packages)\]/, /^ *\[.*\].*/], [/\[(dev-packages)\]/, /^ *\[.*\].*/]],
+  "javascript": [[/["|'](dependencies)["|']/, /\}/], [/["|'](devDependencies)["|']/, /\}/]],
+  "rust": [[/\[(.*dependencies)\]/, /^ *\[.*\].*/]],
+  "python:requirements": null,
+  "python:pipfile": [[/\[(packages)\]/, /^ *\[.*\].*/], [/\[(dev-packages)\]/, /^ *\[.*\].*/]],
+  "python:pyproject": [[/\[(.*dependencies)\]/, /^ *\[.*\].*/]]
 };
 const nameParserRegex = {
-  "package.json": /['|"](.*)['|"] *:/,
-  "Cargo.toml": /([a-zA-Z0-9\-_]*) *=.*/,
-  "requirements.txt": /^ *([a-zA-Z_]+[a-zA-Z0-9\-_]*).*/,
-  Pipfile: /"?([a-zA-Z0-9\-_]*)"? *=.*/,
+  "javascript": /['|"](.*)['|"] *:/,
+  "rust": /([a-zA-Z0-9\-_]*) *=.*/,
+  "python:requirements": /^ *([a-zA-Z_]+[a-zA-Z0-9\-_]*).*/,
+  "python:pipfile": /"?([a-zA-Z0-9\-_]*)"? *=.*/,
+  "python:pyproject": /['|"]?([a-zA-Z0-9\-_]*)['|"]? *=.*/
 };
 
 function isStart(line, confType) {
@@ -75,7 +77,13 @@ function getVersion(data, depSelector, dep, line) {
     else return "";
   }
 
-  const verinfo = data[depSelector][dep];
+  // toml files will nest keys separated by a period, dependencies nested not at the top
+  // level, must be navigated to.
+  const pathItems = depSelector.split('.');
+  for (let item of pathItems) {
+    data = data[item];
+  }
+  const verinfo = data[dep];
 
   if (typeof verinfo === "string") return verinfo;
   return verinfo.version; // for Cargo.toml
