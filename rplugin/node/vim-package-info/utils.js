@@ -92,6 +92,27 @@ async function fetchInfo(package, confType) {
   });
 }
 
+async function getConfigValues(nvim) {
+  let prefix = "  ¤ ";
+  let hl_group = "NonText";
+
+  try {
+    prefix = await nvim.nvim.eval("g:vim_package_json_virutaltext_prefix");
+  } catch (error) {}
+  try {
+    hl_group = await nvim.nvim.eval("g:vim_package_json_virutaltext_highlight");
+  } catch (error) {}
+
+  try {
+    prefix = await nvim.nvim.eval("g:vim_package_info_virutaltext_prefix");
+  } catch (error) {}
+  try {
+    hl_group = await nvim.nvim.eval("g:vim_package_info_virutaltext_highlight");
+  } catch (error) {}
+
+  return { prefix, hl_group };
+}
+
 function save(package, confType, version) {
   global.vimnpmcache[confType][package] = version;
 }
@@ -101,4 +122,4 @@ function load(package, confType) {
   return false;
 }
 
-module.exports = { fetchInfo, getLatestVersion, save, load, getUrl, determineFileKind };
+module.exports = { fetchInfo, getLatestVersion, save, load, getUrl, getConfigValues, determineFileKind };

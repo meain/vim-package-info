@@ -3,13 +3,12 @@ const utils = require("./utils");
 const diff = require("./diff");
 const parser = require("./parser");
 
+const packageList = [];
+
 if (!("vimnpmcache" in global)) {
   global.vimnpmcache = {};
   global.previousBuffer = null;
 }
-
-let prefix = "  ¤ ";
-let hl_group = "NonText";
 
 async function getLatest(package, confType) {
   const cachedVersion = utils.load(package, confType);
@@ -28,7 +27,7 @@ async function getLatest(package, confType) {
   return version;
 }
 
-async function formatLatest(package, version, hl, confType) {
+async function formatLatest(package, version, prefix, hl, confType) {
   const latest = await getLatest(package, confType);
   let lpf = [[`${prefix}No package available`, hl]];
   if (latest) {
@@ -44,11 +43,32 @@ async function formatLatest(package, version, hl, confType) {
   return lpf;
 }
 
+async function redraw(nvim, bufferContent, confType) {
+  const buffer = await nvim.nvim.buffer;
+
+  await cleanAll(nvim);
+  const { prefix, hl_group } = await utils.getConfigValues(nvim);
+
+  for (let package of packageList) {
+    const lineNum = package.line;
+    const details = package.details;
+
+    let lp = [[""]];
+    try {
+      lp = await formatLatest(details.name, details.version, prefix, hl_group, confType);
+    } catch (error) {
+      console.log("error", error);
+    }
+
+    const nbf = await buffer.getLines();
+    if (bufferContent.join("\n") === nbf.join("\n"))
+      await buffer.setVirtualText(1, lineNum, [...lp]);
+  }
+}
+
 async function fetchAll(nvim) {
   const buffer = await nvim.nvim.buffer;
   const bf = await buffer.getLines();
-
-  // if (bf.join("\n") === global.previousBuffer) return;
 
   const filePath = await nvim.nvim.commandOutput("echo expand('%')");
   const fileType = await nvim.nvim.commandOutput("echo &filetype");
@@ -60,55 +80,24 @@ async function fetchAll(nvim) {
   let data = parser.getParsedFile(bf.join("\n"), fileType);
   if (!data) return;
 
-  await cleanAll(nvim);
-  // global.previousBuffer = bf.join("\n");
-
-  // old deps ( do not wanna break anything )
-  try {
-    prefix = await nvim.nvim.eval("g:vim_package_json_virutaltext_prefix");
-  } catch (error) {}
-  try {
-    hl_group = await nvim.nvim.eval("g:vim_package_json_virutaltext_highlight");
-  } catch (error) {}
-
-  try {
-    prefix = await nvim.nvim.eval("g:vim_package_info_virutaltext_prefix");
-  } catch (error) {}
-  try {
-    hl_group = await nvim.nvim.eval("g:vim_package_info_virutaltext_highlight");
-  } catch (error) {}
-
   let depGroups = parser.getDepLines(bf, confType);
 
   Object.keys(depGroups).forEach(async dgk => {
     const dl = depGroups[dgk];
-
     dl[1] = dl[1] - 1;
 
     if (dl[1] < dl[0] || dl[1] < 0) return;
 
     for (let i = dl[0]; i < dl[1]; i++) {
-      if (bf[i].trim() === "") continue;
+      if (bf[i].trim() === "") continue; // do not evaluate empty lines
+
       const package = parser.getPackageInfo(bf[i], confType, data, dgk);
       if (package.name === undefined) continue;
-
-      let lp = [[""]];
-      try {
-        lp = await formatLatest(
-          package.name,
-          package.version,
-          hl_group,
-          confType
-        );
-      } catch (error) {
-        console.log("error", error);
-      }
-
-      const nbf = await buffer.getLines();
-      if (bf.join("\n") === nbf.join("\n"))
-        await buffer.setVirtualText(1, parseInt(i), [...lp]);
+      packageList.push({ line: parseInt(i), details: package });
     }
   });
+
+  await redraw(nvim, bf, confType);
 }
 
 async function cleanAll(nvim) {
