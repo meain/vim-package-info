@@ -25,8 +25,7 @@ async function getLatest(package, confType) {
   return version;
 }
 
-async function formatLatest(package, version, prefix, hl, confType) {
-  const latest = await getLatest(package, confType);
+async function formatLatest(package, version, prefix, hl, latest) {
   let lpf = [[`${prefix}No package available`, hl]];
   if (latest) {
     const cd = diff.colorizeDiff(version, latest, hl);
@@ -41,26 +40,27 @@ async function formatLatest(package, version, prefix, hl, confType) {
   return lpf;
 }
 
-async function redraw(nvim, bufferContent, confType, packageList) {
+async function drawOne(nvim, package, latest) {
   const buffer = await nvim.nvim.buffer;
 
-  await cleanAll(nvim);
+  const lineNum = package.line;
+  const details = package.details;
+
   const { prefix, hl_group } = await utils.getConfigValues(nvim);
 
+  const lp = await formatLatest(details.name, details.version, prefix, hl_group, latest);
+  await buffer.setVirtualText(1, lineNum, [...lp]);
+}
+
+async function redraw(nvim, cbf, confType, packageList) {
+  const buffer = await nvim.nvim.buffer;
+  const nbf = await buffer.getLines();
+
+  if (cbf.join("\n") !== nbf.join("\n")) await cleanAll(nvim);
+
   for (let package of packageList) {
-    const lineNum = package.line;
-    const details = package.details;
-
-    let lp = [[""]];
-    try {
-      lp = await formatLatest(details.name, details.version, prefix, hl_group, confType);
-    } catch (error) {
-      console.log("error", error);
-    }
-
-    const nbf = await buffer.getLines();
-    if (bufferContent.join("\n") === nbf.join("\n"))
-      await buffer.setVirtualText(1, lineNum, [...lp]);
+    const latest = await getLatest(package.details.name, confType);
+    if (cbf.join("\n") === nbf.join("\n")) await drawOne(nvim, package, latest);
   }
 }
 
