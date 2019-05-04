@@ -25,7 +25,7 @@ async function getLatest(package, confType) {
   return version;
 }
 
-async function formatLatest(package, version, prefix, hl, latest) {
+async function format(package, version, prefix, hl, latest) {
   let lpf = [[`${prefix}No package available`, hl]];
   if (latest) {
     const cd = diff.colorizeDiff(version, latest, hl);
@@ -48,7 +48,7 @@ async function drawOne(nvim, package, latest) {
 
   const { prefix, hl_group } = await utils.getConfigValues(nvim);
 
-  const lp = await formatLatest(details.name, details.version, prefix, hl_group, latest);
+  const lp = await format(details.name, details.version, prefix, hl_group, latest);
   await buffer.setVirtualText(1, lineNum, [...lp]);
 }
 

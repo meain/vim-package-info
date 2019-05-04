@@ -4,11 +4,18 @@ if (!("vimnpmcache" in global)) {
   // you might think that we do not have to have two diffent objects
   // but there might be a single project with both package.json and Cargo.toml
   global.vimnpmcache = {
-    "javascript": {},
-    "rust": {},
+    javascript: {},
+    rust: {},
     "python:requirements": {},
     "python:pipfile": {},
-    "python:pyproject": {}
+    "python:pyproject": {},
+  };
+  global.viminfovulncache = {
+    javascript: {},
+    rust: {},
+    "python:requirements": {},
+    "python:pipfile": {},
+    "python:pyproject": {},
   };
 }
 
@@ -69,7 +76,7 @@ function getLatestVersion(data, confType) {
   return false;
 }
 
-async function fetchInfo(package, confType) {
+async function fetchInfo(package, confType, vuln = false) {
   return new Promise((accept, reject) => {
     const url = getUrl(package, confType);
     if (url)
@@ -85,7 +92,7 @@ async function fetchInfo(package, confType) {
         })
         .on("error", err => {
           console.log("Error: " + err.message);
-          global.vimnpmcache[package] = false;
+          global.vimnpmcache[confType][package] = false;
           reject(false);
         });
     else reject(false);
@@ -113,13 +120,31 @@ async function getConfigValues(nvim) {
   return { prefix, hl_group };
 }
 
-function save(package, confType, version) {
-  global.vimnpmcache[confType][package] = version;
+function save(package, confType, version, vuln = false) {
+  // TODO: refactor vuln
+  if (vuln) {
+    global.viminfovulncache[confType][package] = version;
+  } else {
+    global.vimnpmcache[confType][package] = version;
+  }
 }
 
-function load(package, confType) {
-  if (package in global.vimnpmcache[confType]) return global.vimnpmcache[confType][package];
+function load(package, confType, vuln = false) {
+  if (vuln) {
+    if (package in global.viminfovulncache[confType])
+      return global.viminfovulncache[confType][package];
+  } else {
+    if (package in global.vimnpmcache[confType]) return global.vimnpmcache[confType][package];
+  }
   return false;
 }
 
-module.exports = { fetchInfo, getLatestVersion, save, load, getUrl, getConfigValues, determineFileKind };
+module.exports = {
+  fetchInfo,
+  getLatestVersion,
+  save,
+  load,
+  getUrl,
+  getConfigValues,
+  determineFileKind,
+};

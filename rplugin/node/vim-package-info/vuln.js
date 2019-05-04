@@ -1,15 +1,41 @@
 const https = require("follow-redirects").https;
 
-function getCoordinates(package, confType){
+function getCoordinates(package, version, confType) {
   switch (confType) {
-    case "package.json":
-      return `https://registry.npmjs.org/${package}`;
-    case "Cargo.toml":
+    case "javascript":
+      return `pkg:npm/${package}@${version}`;
+    case "rust":
       return `https://crates.io/api/v1/crates/${package}`;
-    case "requirements.txt":
-    case "Pipfile":
+    case "python:requirements":
+    case "python:pipfile":
+    case "python:pyproject":
       return `https://pypi.org/pypi/${package}/json`;
     default:
       return false;
   }
 }
+
+async function getVuln(package, confType, version) {
+  return new Promise((accept, reject) => {
+    const url = getCoordinates(package, version, confType);
+    if (url)
+      https
+        .get(url, resp => {
+          let data = "";
+          resp.on("data", chunk => {
+            data += chunk;
+          });
+          resp.on("end", () => {
+            accept(data);
+          });
+        })
+        .on("error", err => {
+          console.log("Error: " + err.message);
+          global.viminfovulncache[confType][package] = false;
+          reject(false);
+        });
+    else reject(false);
+  });
+}
+
+module.exports = { getVuln };
