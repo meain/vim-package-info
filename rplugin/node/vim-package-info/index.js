@@ -3,8 +3,6 @@ const utils = require("./utils");
 const diff = require("./diff");
 const parser = require("./parser");
 
-const packageList = [];
-
 if (!("vimnpmcache" in global)) {
   global.vimnpmcache = {};
   global.previousBuffer = null;
@@ -43,7 +41,7 @@ async function formatLatest(package, version, prefix, hl, confType) {
   return lpf;
 }
 
-async function redraw(nvim, bufferContent, confType) {
+async function redraw(nvim, bufferContent, confType, packageList) {
   const buffer = await nvim.nvim.buffer;
 
   await cleanAll(nvim);
@@ -66,7 +64,29 @@ async function redraw(nvim, bufferContent, confType) {
   }
 }
 
-async function fetchAll(nvim) {
+function parseLines(confType, buffer, data) {
+  const packageList = [];
+  let depGroups = parser.getDepLines(buffer, confType);
+
+  Object.keys(depGroups).forEach(async dgk => {
+    const dl = depGroups[dgk];
+    dl[1] = dl[1] - 1;
+
+    if (dl[1] < dl[0] || dl[1] < 0) return;
+
+    for (let i = dl[0]; i < dl[1]; i++) {
+      if (buffer[i].trim() === "") continue; // do not evaluate empty lines
+
+      const package = parser.getPackageInfo(buffer[i], confType, data, dgk);
+      if (package.name === undefined) continue;
+      packageList.push({ line: parseInt(i), details: package });
+    }
+  });
+
+  return packageList;
+}
+
+async function start(nvim) {
   const buffer = await nvim.nvim.buffer;
   const bf = await buffer.getLines();
 
@@ -80,24 +100,9 @@ async function fetchAll(nvim) {
   let data = parser.getParsedFile(bf.join("\n"), fileType);
   if (!data) return;
 
-  let depGroups = parser.getDepLines(bf, confType);
+  const packageList = parseLines(confType, bf, data);
 
-  Object.keys(depGroups).forEach(async dgk => {
-    const dl = depGroups[dgk];
-    dl[1] = dl[1] - 1;
-
-    if (dl[1] < dl[0] || dl[1] < 0) return;
-
-    for (let i = dl[0]; i < dl[1]; i++) {
-      if (bf[i].trim() === "") continue; // do not evaluate empty lines
-
-      const package = parser.getPackageInfo(bf[i], confType, data, dgk);
-      if (package.name === undefined) continue;
-      packageList.push({ line: parseInt(i), details: package });
-    }
-  });
-
-  await redraw(nvim, bf, confType);
+  await redraw(nvim, bf, confType, packageList);
 }
 
 async function cleanAll(nvim) {
@@ -108,7 +113,7 @@ module.exports = nvim => {
   nvim.setOptions({ dev: true });
 
   ["BufEnter", "InsertLeave", "TextChanged"].forEach(e => {
-    nvim.registerAutocmd(e, async () => await fetchAll(nvim), {
+    nvim.registerAutocmd(e, async () => await start(nvim), {
       pattern: "*/package.json,*/Cargo.toml,*/*requirements.txt,*/Pipfile,*/pyproject.toml"
     });
   });
