@@ -76,7 +76,7 @@ function getLatestVersion(data, confType) {
   return false;
 }
 
-async function fetchInfo(package, confType, vuln = false) {
+async function fetchInfo(package, confType) {
   return new Promise((accept, reject) => {
     const url = getUrl(package, confType);
     if (url)
@@ -120,12 +120,12 @@ async function getConfigValues(nvim) {
   return { prefix, hl_group };
 }
 
-function save(package, confType, version, vuln = false) {
+function save(package, confType, data, vuln = false) {
   // TODO: refactor vuln
   if (vuln) {
-    global.viminfovulncache[confType][package] = version;
+    global.viminfovulncache[confType][package] = data;
   } else {
-    global.vimnpmcache[confType][package] = version;
+    global.vimnpmcache[confType][package] = data;
   }
 }
 

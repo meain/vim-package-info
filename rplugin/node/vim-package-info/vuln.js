@@ -1,9 +1,10 @@
 const https = require("follow-redirects").https;
 
 function getCoordinates(package, version, confType) {
+  const base = "https://ossindex.sonatype.org/api/v3/component-report/";
   switch (confType) {
     case "javascript":
-      return `pkg:npm/${package}@${version}`;
+      return `${base}pkg:npm/${package}@${version}`;
     case "rust":
       return `https://crates.io/api/v1/crates/${package}`;
     case "python:requirements":
@@ -15,7 +16,7 @@ function getCoordinates(package, version, confType) {
   }
 }
 
-async function getVuln(package, confType, version) {
+async function fetchVuln(package, confType, version) {
   return new Promise((accept, reject) => {
     const url = getCoordinates(package, version, confType);
     if (url)
@@ -38,4 +39,4 @@ async function getVuln(package, confType, version) {
   });
 }
 
-module.exports = { getVuln };
+module.exports = { fetchVuln };

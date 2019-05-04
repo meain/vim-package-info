@@ -1,5 +1,6 @@
 const path = require("path");
 const utils = require("./utils");
+const vuln = require("./vuln");
 const diff = require("./diff");
 const parser = require("./parser");
 
@@ -25,7 +26,25 @@ async function getLatest(package, confType) {
   return version;
 }
 
-async function format(package, version, prefix, hl, latest) {
+async function isVulnerable(package, confType, version) {
+  const cachedVersion = utils.load(package, confType, true);
+  if (cachedVersion) return cachedVersion;
+
+  let data = await vuln.fetchVuln(package, confType, version);
+  if (!data) {
+    utils.save(package, confType, false, true);
+    return false;
+  }
+
+  console.log("data:", data)
+  data = JSON.parse(data);
+
+  const vulnerable = data.hasOwnProperty("vulnerabilities") && data.vulnerabilities.length > 0;
+  utils.save(package, confType, vulnerable, true);
+  return vulnerable;
+}
+
+async function format(package, version, prefix, hl, latest, vulnerable = false) {
   let lpf = [[`${prefix}No package available`, hl]];
   if (latest) {
     const cd = diff.colorizeDiff(version, latest, hl);
@@ -34,13 +53,22 @@ async function format(package, version, prefix, hl, latest) {
         return [...acc, cdi, [".", cdi[1]]];
       }, []);
       cdf.splice(cdf.length - 1);
-      lpf = [[`${prefix}latest: `, hl], ...cdf];
+      if (vulnerable) {
+        lpf = [
+          ["   ", hl],
+          [" vulnerable ", "VimPackageInfoVulnerable"],
+          [`${prefix}latest: `, hl],
+          ...cdf,
+        ];
+      } else {
+        lpf = [[`${prefix}latest: `, hl], ...cdf];
+      }
     }
   }
   return lpf;
 }
 
-async function drawOne(nvim, package, latest) {
+async function drawOne(nvim, package, latest, vulnerable) {
   const buffer = await nvim.nvim.buffer;
 
   const lineNum = package.line;
@@ -48,7 +76,7 @@ async function drawOne(nvim, package, latest) {
 
   const { prefix, hl_group } = await utils.getConfigValues(nvim);
 
-  const lp = await format(details.name, details.version, prefix, hl_group, latest);
+  const lp = await format(details.name, details.version, prefix, hl_group, latest, vulnerable);
   await buffer.setVirtualText(1, lineNum, [...lp]);
 }
 
@@ -60,7 +88,8 @@ async function redraw(nvim, cbf, confType, packageList) {
 
   for (let package of packageList) {
     const latest = await getLatest(package.details.name, confType);
-    if (cbf.join("\n") === nbf.join("\n")) await drawOne(nvim, package, latest);
+    const vulnerable = await isVulnerable(package.details.name, confType, package.details.version);
+    if (cbf.join("\n") === nbf.join("\n")) await drawOne(nvim, package, latest, vulnerable);
   }
 }
 
@@ -114,7 +143,7 @@ module.exports = nvim => {
 
   ["BufEnter", "InsertLeave", "TextChanged"].forEach(e => {
     nvim.registerAutocmd(e, async () => await start(nvim), {
-      pattern: "*/package.json,*/Cargo.toml,*/*requirements.txt,*/Pipfile,*/pyproject.toml"
+      pattern: "*/package.json,*/Cargo.toml,*/*requirements.txt,*/Pipfile,*/pyproject.toml",
     });
   });
 };
