@@ -2,7 +2,7 @@
 
 It lets you view the latest version of each package of your dependency.
 
-![GIF](https://i.imgur.com/EsEMaxz.gif)
+![GIF](https://i.imgur.com/xyVM6tR.gif)
 
 | ![](https://i.imgur.com/YTaFHzs.png) | ![](https://i.imgur.com/HqgozdY.png) | ![](https://i.imgur.com/evCwnHZ.png) | ![](https://i.imgur.com/PzX89H1.png) | ![](https://i.imgur.com/s6Cu8oZ.png) |
 | :----------------------------------: | :----------------------------------: | :----------------------------------: | :----------------------------------: | :----------------------------------: |
