@@ -4,6 +4,8 @@ const vuln = require("./vuln");
 const diff = require("./diff");
 const parser = require("./parser");
 
+// const axios = require("axios");
+
 if (!("vimnpmcache" in global)) {
   global.vimnpmcache = {};
   global.previousBuffer = null;
@@ -13,7 +15,12 @@ async function getLatest(package, confType) {
   const cachedVersion = utils.load(package, confType);
   if (cachedVersion) return cachedVersion;
 
-  const data = await utils.fetchInfo(package, confType);
+  let data = false;
+  try {
+    data = await utils.fetchInfo(package, confType);
+  } catch (e) {
+    console.error("Could not fetch package info");
+  }
   if (!data) {
     utils.save(package, confType, false);
     return false;
@@ -27,21 +34,26 @@ async function getLatest(package, confType) {
 }
 
 async function isVulnerable(package, confType, version) {
-  const cachedVersion = utils.load(package, confType, true);
+  const cachedVersion = utils.load(package + "@" + version, confType, true);
   if (cachedVersion) return cachedVersion;
+  else return false;
+}
 
-  let data = await vuln.fetchVuln(package, confType, version);
-  if (!data) {
-    utils.save(package, confType, false, true);
+async function populateVulnStats(packages, confType) {
+  try {
+    let data = await vuln.fetchVulns(packages, confType);
+    if (!data) return false;
+    for (let i in data) {
+      const dp = data[i];
+      const package = packages[i].details;
+
+      const vulnerable = dp.hasOwnProperty("vulnerabilities") && dp.vulnerabilities.length > 0;
+      utils.save(package.name + "@" + package.version, confType, vulnerable, true);
+    }
+    return true;
+  } catch (e) {
     return false;
   }
-
-  console.log("data:", data)
-  data = JSON.parse(data);
-
-  const vulnerable = data.hasOwnProperty("vulnerabilities") && data.vulnerabilities.length > 0;
-  utils.save(package, confType, vulnerable, true);
-  return vulnerable;
 }
 
 async function format(package, version, prefix, hl, latest, vulnerable = false) {
@@ -131,6 +143,9 @@ async function start(nvim) {
 
   const packageList = parseLines(confType, bf, data);
 
+  await redraw(nvim, bf, confType, packageList);
+
+  await populateVulnStats(packageList, confType);
   await redraw(nvim, bf, confType, packageList);
 }
 
