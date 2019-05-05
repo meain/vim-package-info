@@ -134,8 +134,51 @@ async function cleanAll(nvim) {
   await nvim.nvim.buffer.clearNamespace({ nsId: 1 });
 }
 
+async function showVulnerabilities(nvim) {
+  const buffer = await nvim.nvim.buffer;
+  const bf = await buffer.getLines();
+
+  const fileType = await nvim.nvim.commandOutput("echo &filetype");
+  const filePath = await nvim.nvim.commandOutput("echo expand('%')");
+  const filename = path.basename(filePath);
+  const confType = utils.determineFileKind(filename);
+
+  let data = parser.getParsedFile(bf.join("\n"), fileType);
+  if (!data) return;
+
+  const line = await nvim.nvim.getLine();
+  let depGroups = parser.getDepLines(buffer, confType);
+  console.log("depGroups:", depGroups);
+  const package = parser.getPackageInfo(line, confType, data, "dependencies"); // TODO: Do not hard code depGroup name
+
+  const vulnerabilities = vuln.getVulnerability(package.name, package.version, confType);
+  if (!vulnerabilities)
+    await nvim.nvim.outWrite(`No vulnerabilities for ${package.name}@${package.version}\n`);
+  const vList = utils.createVulStats(
+    vulnerabilities.vulnerabilities,
+    `${package.name}@${package.version}`
+  );
+  await nvim.nvim.command("topleft new __vulnerabilities__");
+  await nvim.nvim.command("set ft=markdown");
+  await nvim.nvim.buffer.insert(vList, 0);
+  await nvim.nvim.command("setlocal buftype=nofile");
+  await nvim.nvim.command("setlocal bufhidden=hide");
+}
+
 module.exports = nvim => {
-  nvim.setOptions({ dev: true });
+  nvim.setOptions({ dev: false });
+
+  nvim.registerCommand(
+    "ShowV",
+    async () => {
+      try {
+        await showVulnerabilities(nvim);
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    { sync: false }
+  );
 
   ["BufEnter", "InsertLeave", "TextChanged"].forEach(e => {
     nvim.registerAutocmd(e, async () => await start(nvim), {

@@ -81,8 +81,13 @@ async function fetchVulns(packages, confType) {
   });
 }
 
+function getVulnerability(package, version, confType){
+  const cachedVersion = utils.load(package + "@" + version, confType, true);
+  if (cachedVersion !== null) return cachedVersion;
+  else return false;
+}
+
 async function isVulnerable(package, confType, version) {
-  console.log("global.viminfovulncache[confType]:", global.viminfovulncache[confType]);
   const cachedVersion = utils.load(package + "@" + version, confType, true);
   if (cachedVersion !== null) return cachedVersion.vulnerabilities.length > 0;
   else return false;
@@ -106,4 +111,4 @@ async function populateVulnStats(packages, confType) {
   }
 }
 
-module.exports = { fetchVulns, populateVulnStats, isVulnerable };
+module.exports = { fetchVulns, populateVulnStats, isVulnerable, getVulnerability };

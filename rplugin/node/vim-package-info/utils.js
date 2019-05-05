@@ -139,6 +139,20 @@ function load(package, confType, vuln = false) {
   return null;
 }
 
+function createVulStats(vulnerabilities, package) {
+  let vv = [`## Vulnerabilities for ${package}`, "", ""];
+  for (let v of vulnerabilities) {
+    vv.push(`### ${v.title}${v.cwe ? `(${v.cwe})` : ""}`);
+    vv.push("");
+    vv.push(v.description);
+    vv.push(v.reference);
+    vv.push("");
+    vv.push("");
+  }
+  console.log("vv:", vv);
+  return vv;
+}
+
 module.exports = {
   fetchInfo,
   getLatestVersion,
@@ -147,4 +161,5 @@ module.exports = {
   getUrl,
   getConfigValues,
   determineFileKind,
+  createVulStats,
 };
