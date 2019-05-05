@@ -2,15 +2,16 @@ const https = require("follow-redirects").https;
 const utils = require("./utils");
 
 function getCoordinates(package, version, confType) {
+  const tag = `${package}@${version.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0]}`;
   switch (confType) {
     case "javascript":
-      return `pkg:npm/${package}@${version.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0]}`;
+      return `pkg:npm/${tag}`;
     case "rust":
-      return `https://crates.io/api/v1/crates/${package}`;
+      return `pkg:cargo/${tag}`;
     case "python:requirements":
     case "python:pipfile":
     case "python:pyproject":
-      return `https://pypi.org/pypi/${package}/json`;
+      return `pkg:pypi/${tag}`;
     default:
       return false;
   }
@@ -82,10 +83,11 @@ async function populateVulnStats(packages, confType) {
     if (!data) return false;
     for (let i in data) {
       const dp = data[i];
-      const package = packages[i].details;
+      const splits = dp.coordinates.split("/");
+      const tag = splits[splits.length - 1];
 
       const vulnerable = dp.hasOwnProperty("vulnerabilities") && dp.vulnerabilities.length > 0;
-      utils.save(package.name + "@" + package.version, confType, vulnerable, true);
+      utils.save(tag, confType, vulnerable, true);
     }
     return true;
   } catch (e) {
