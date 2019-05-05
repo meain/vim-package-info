@@ -162,16 +162,27 @@ async function showVulnerabilities(nvim) {
 
   const vulnerabilities = vuln.getVulnerability(package.name, package.version, confType);
   if (!vulnerabilities)
-    await nvim.nvim.outWrite(`No vulnerabilities for ${package.name}@${package.version.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0]}\n`);
+    await nvim.nvim.outWrite(
+      `No vulnerabilities for ${package.name}@${
+        package.version.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0]
+      }\n`
+    );
   const vList = utils.createVulStats(
     vulnerabilities.vulnerabilities,
     `${package.name}@${package.version}`
   );
-  await nvim.nvim.command("topleft new __vulnerabilities__");
+  await nvim.nvim.command("topleft new");
   await nvim.nvim.command("set ft=markdown");
   await nvim.nvim.buffer.insert(vList, 0);
-  await nvim.nvim.command("setlocal buftype=nofile");
-  await nvim.nvim.command("setlocal bufhidden=hide");
+  [
+    "nobuflisted",
+    "nolist",
+    "bufhidden=wipe",
+    "setlocal buftype=nofile",
+    "setlocal bufhidden=hide",
+  ].map(async c => {
+    await nvim.nvim.command(c);
+  });
 }
 
 module.exports = nvim => {
