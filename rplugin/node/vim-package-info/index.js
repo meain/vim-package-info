@@ -150,22 +150,15 @@ async function showVulnerabilities(nvim) {
 
   const line = await nvim.nvim.getLine();
   let depGroups = parser.getDepLines(bf, confType);
-  console.log("depGroups:", depGroups)
   let dkg = null;
   for (let k of Object.keys(depGroups)) {
     if (depGroups[k][0] < lineNum && depGroups[k][1] > lineNum) {
       dkg = k;
     }
   }
-  if (dkg === null) {
-    await nvim.nvim.outWrite("No package on line.");
-    return;
-  }
+  if (dkg === null) return;
   const package = parser.getPackageInfo(line, confType, data, dkg);
-  if (package.name === undefined) {
-    await nvim.nvim.outWrite("No package on line.");
-    return;
-  }
+  if (package.name === undefined) return;
 
   const vulnerabilities = vuln.getVulnerability(package.name, package.version, confType);
   if (!vulnerabilities)
