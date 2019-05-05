@@ -13,7 +13,7 @@ if (!("vimnpmcache" in global)) {
 
 async function getLatest(package, confType) {
   const cachedVersion = utils.load(package, confType);
-  if (cachedVersion) return cachedVersion;
+  if (cachedVersion !== null) return cachedVersion;
 
   let data = false;
   try {

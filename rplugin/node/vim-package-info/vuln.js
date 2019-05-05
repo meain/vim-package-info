@@ -20,12 +20,20 @@ async function fetchVulns(packages, confType) {
   return new Promise((accept, reject) => {
     let coordinates = [];
     for (let package of packages) {
-      coordinates.push({
-        name: package.details.name,
-        version: package.details.version,
-        coordinate: getCoordinates(package.details.name, package.details.version, confType),
-      });
+      const cachedVersion = utils.load(
+        package.details.name + "@" + package.details.version,
+        confType,
+        true
+      );
+      if (cachedVersion === null)
+        coordinates.push({
+          name: package.details.name,
+          version: package.details.version,
+          coordinate: getCoordinates(package.details.name, package.details.version, confType),
+        });
     }
+    console.log(coordinates)
+    if (coordinates.length === 0) accept([]);
     const c = coordinates.map(c => c.coordinate);
     const data = JSON.stringify({ coordinates: c });
     const options = {
@@ -62,7 +70,7 @@ async function fetchVulns(packages, confType) {
 
 async function isVulnerable(package, confType, version) {
   const cachedVersion = utils.load(package + "@" + version, confType, true);
-  if (cachedVersion) return cachedVersion;
+  if (cachedVersion !== null) return cachedVersion;
   else return false;
 }
 

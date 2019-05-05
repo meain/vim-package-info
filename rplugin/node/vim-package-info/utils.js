@@ -136,7 +136,7 @@ function load(package, confType, vuln = false) {
   } else {
     if (package in global.vimnpmcache[confType]) return global.vimnpmcache[confType][package];
   }
-  return false;
+  return null;
 }
 
 module.exports = {
