@@ -9,8 +9,8 @@ const tests = [
         url: "https://registry.npmjs.org/mocha",
       },
       dep_lines: {
-        dependencies: [5, 13],
-        devDependencies: [22, 27],
+        dependencies: [5, 14],
+        devDependencies: [23, 28],
       },
       version_extraction: {
         data: { dependencies: { "babel-eslint": "^8.2.6", "why-did-you-update": "^0.1.1" } },
@@ -47,8 +47,8 @@ const tests = [
       },
       dep_lines: {
         "build-dependencies": [18, 22],
-        "dev-dependencies": [33, 36],
-        dependencies: [22, 29],
+        "dev-dependencies": [34, 37],
+        dependencies: [22, 30],
       },
       version_extraction: {
         data: { dependencies: { libc: "8.2.6", serde: { version: "~1.0" } } },
