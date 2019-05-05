@@ -32,7 +32,8 @@ async function fetchVulns(packages, confType) {
           coordinate: getCoordinates(package.details.name, package.details.version, confType),
         });
     }
-    console.log(coordinates)
+    coordinates = coordinates.splice(0, 119);
+    console.log(coordinates.length, coordinates);
     if (coordinates.length === 0) accept([]);
     const c = coordinates.map(c => c.coordinate);
     const data = JSON.stringify({ coordinates: c });
@@ -69,6 +70,7 @@ async function fetchVulns(packages, confType) {
 }
 
 async function isVulnerable(package, confType, version) {
+  console.log("global.viminfovulncache[confType]:", global.viminfovulncache[confType]);
   const cachedVersion = utils.load(package + "@" + version, confType, true);
   if (cachedVersion !== null) return cachedVersion;
   else return false;
