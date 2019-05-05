@@ -1,6 +1,8 @@
 const https = require("follow-redirects").https;
 const utils = require("./utils");
 
+let lastRequestTime = null;
+
 function getCoordinates(package, version, confType) {
   const tag = `${package}@${version.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0]}`;
   switch (confType) {
@@ -19,54 +21,63 @@ function getCoordinates(package, version, confType) {
 
 async function fetchVulns(packages, confType) {
   return new Promise((accept, reject) => {
-    let coordinates = [];
-    for (let package of packages) {
-      const cachedVersion = utils.load(
-        package.details.name + "@" + package.details.version,
-        confType,
-        true
-      );
-      if (cachedVersion === null)
-        coordinates.push({
-          name: package.details.name,
-          version: package.details.version,
-          coordinate: getCoordinates(package.details.name, package.details.version, confType),
-        });
-    }
-    coordinates = coordinates.splice(0, 119);
-    console.log(coordinates.length, coordinates);
-    if (coordinates.length === 0) accept([]);
-    const c = coordinates.map(c => c.coordinate);
-    const data = JSON.stringify({ coordinates: c });
-    const options = {
-      hostname: "ossindex.sonatype.org",
-      port: 443,
-      path: "/api/v3/component-report",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Content-Length": data.length,
+    const firstRun = lastRequestTime === null ? true : false
+    setTimeout(
+      () => {
+        if (!firstRun && lastRequestTime > new Date().getTime() - 2500) accept([]);
+
+        let coordinates = [];
+        for (let package of packages) {
+          const cachedVersion = utils.load(
+            package.details.name + "@" + package.details.version,
+            confType,
+            true
+          );
+          if (cachedVersion === null)
+            coordinates.push({
+              name: package.details.name,
+              version: package.details.version,
+              coordinate: getCoordinates(package.details.name, package.details.version, confType),
+            });
+        }
+        coordinates = coordinates.splice(0, 119);
+        console.log(coordinates.length, coordinates);
+        if (coordinates.length === 0) accept([]);
+        const c = coordinates.map(c => c.coordinate);
+        const data = JSON.stringify({ coordinates: c });
+        const options = {
+          hostname: "ossindex.sonatype.org",
+          port: 443,
+          path: "/api/v3/component-report",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Content-Length": data.length,
+          },
+        };
+
+        let req = https
+          .request(options, resp => {
+            let data = "";
+            resp.on("data", chunk => {
+              data += chunk;
+            });
+            resp.on("end", () => {
+              let parsed = JSON.parse(data);
+              accept(parsed);
+            });
+          })
+          .on("error", err => {
+            console.log("Error: " + err.message);
+            reject(false);
+          });
+
+        req.write(data);
+        req.end();
       },
-    };
-
-    let req = https
-      .request(options, resp => {
-        let data = "";
-        resp.on("data", chunk => {
-          data += chunk;
-        });
-        resp.on("end", () => {
-          let parsed = JSON.parse(data);
-          accept(parsed);
-        });
-      })
-      .on("error", err => {
-        console.log("Error: " + err.message);
-        reject(false);
-      });
-
-    req.write(data);
-    req.end();
+      lastRequestTime === null ? 0 : 3000
+    );
+    lastRequestTime = new Date().getTime();
   });
 }
 
