@@ -162,7 +162,7 @@ async function showVulnerabilities(nvim) {
 
   const vulnerabilities = vuln.getVulnerability(package.name, package.version, confType);
   if (!vulnerabilities)
-    await nvim.nvim.outWrite(`No vulnerabilities for ${package.name}@${package.version}\n`);
+    await nvim.nvim.outWrite(`No vulnerabilities for ${package.name}@${package.version.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0]}\n`);
   const vList = utils.createVulStats(
     vulnerabilities.vulnerabilities,
     `${package.name}@${package.version}`

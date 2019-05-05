@@ -82,13 +82,13 @@ async function fetchVulns(packages, confType) {
 }
 
 function getVulnerability(package, version, confType){
-  const cachedVersion = utils.load(package + "@" + version, confType, true);
+  const cachedVersion = utils.load(package + "@" + version.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0], confType, true);
   if (cachedVersion !== null) return cachedVersion;
   else return false;
 }
 
 async function isVulnerable(package, confType, version) {
-  const cachedVersion = utils.load(package + "@" + version, confType, true);
+  const cachedVersion = utils.load(package + "@" + version.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0], confType, true);
   if (cachedVersion !== null) return cachedVersion.vulnerabilities.length > 0;
   else return false;
 }
