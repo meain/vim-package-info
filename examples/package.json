@@ -5,6 +5,7 @@
   "dependencies": {
     "babel-eslint": "^8.2.6",
     "color-hash": "^1.0.3",
+    "express": "^4.0.0",
     "preact-compat": "^3.18.4",
     "react": "^16.6.0",
     "react-dom": "^16.6.0",

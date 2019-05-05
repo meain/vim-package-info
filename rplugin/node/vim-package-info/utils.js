@@ -4,11 +4,18 @@ if (!("vimnpmcache" in global)) {
   // you might think that we do not have to have two diffent objects
   // but there might be a single project with both package.json and Cargo.toml
   global.vimnpmcache = {
-    "javascript": {},
-    "rust": {},
+    javascript: {},
+    rust: {},
     "python:requirements": {},
     "python:pipfile": {},
-    "python:pyproject": {}
+    "python:pyproject": {},
+  };
+  global.viminfovulncache = {
+    javascript: {},
+    rust: {},
+    "python:requirements": {},
+    "python:pipfile": {},
+    "python:pyproject": {},
   };
 }
 
@@ -85,20 +92,74 @@ async function fetchInfo(package, confType) {
         })
         .on("error", err => {
           console.log("Error: " + err.message);
-          global.vimnpmcache[package] = false;
+          global.vimnpmcache[confType][package] = false;
           reject(false);
         });
     else reject(false);
   });
 }
 
-function save(package, confType, version) {
-  global.vimnpmcache[confType][package] = version;
+async function getConfigValues(nvim) {
+  let prefix = "  ¤ ";
+  let hl_group = "NonText";
+
+  try {
+    prefix = await nvim.nvim.eval("g:vim_package_json_virutaltext_prefix");
+  } catch (error) {}
+  try {
+    hl_group = await nvim.nvim.eval("g:vim_package_json_virutaltext_highlight");
+  } catch (error) {}
+
+  try {
+    prefix = await nvim.nvim.eval("g:vim_package_info_virutaltext_prefix");
+  } catch (error) {}
+  try {
+    hl_group = await nvim.nvim.eval("g:vim_package_info_virutaltext_highlight");
+  } catch (error) {}
+
+  return { prefix, hl_group };
 }
 
-function load(package, confType) {
-  if (package in global.vimnpmcache[confType]) return global.vimnpmcache[confType][package];
-  return false;
+function save(package, confType, data, vuln = false) {
+  // TODO: refactor vuln
+  if (vuln) {
+    global.viminfovulncache[confType][package] = data;
+  } else {
+    global.vimnpmcache[confType][package] = data;
+  }
 }
 
-module.exports = { fetchInfo, getLatestVersion, save, load, getUrl, determineFileKind };
+function load(package, confType, vuln = false) {
+  if (vuln) {
+    if (package in global.viminfovulncache[confType])
+      return global.viminfovulncache[confType][package];
+  } else {
+    if (package in global.vimnpmcache[confType]) return global.vimnpmcache[confType][package];
+  }
+  return null;
+}
+
+function createVulStats(vulnerabilities, package) {
+  let vv = [`## Vulnerabilities for ${package}`, "", ""];
+  for (let v of vulnerabilities) {
+    vv.push(`### ${v.title}${v.cwe ? `(${v.cwe})` : ""}`);
+    vv.push("");
+    vv.push(v.description);
+    vv.push(v.reference);
+    vv.push("");
+    vv.push("");
+  }
+  console.log("vv:", vv);
+  return vv;
+}
+
+module.exports = {
+  fetchInfo,
+  getLatestVersion,
+  save,
+  load,
+  getUrl,
+  getConfigValues,
+  determineFileKind,
+  createVulStats,
+};
