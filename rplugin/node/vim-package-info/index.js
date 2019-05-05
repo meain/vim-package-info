@@ -178,7 +178,7 @@ module.exports = nvim => {
   nvim.setOptions({ dev: false });
 
   nvim.registerCommand(
-    "ShowV",
+    "ShowVulnerabilities",
     async () => {
       try {
         await showVulnerabilities(nvim);
