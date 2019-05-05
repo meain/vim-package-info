@@ -33,29 +33,6 @@ async function getLatest(package, confType) {
   return version;
 }
 
-async function isVulnerable(package, confType, version) {
-  const cachedVersion = utils.load(package + "@" + version, confType, true);
-  if (cachedVersion) return cachedVersion;
-  else return false;
-}
-
-async function populateVulnStats(packages, confType) {
-  try {
-    let data = await vuln.fetchVulns(packages, confType);
-    if (!data) return false;
-    for (let i in data) {
-      const dp = data[i];
-      const package = packages[i].details;
-
-      const vulnerable = dp.hasOwnProperty("vulnerabilities") && dp.vulnerabilities.length > 0;
-      utils.save(package.name + "@" + package.version, confType, vulnerable, true);
-    }
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
 async function format(package, version, prefix, hl, latest, vulnerable = false) {
   let lpf = [[`${prefix}No package available`, hl]];
   if (latest) {
@@ -100,7 +77,11 @@ async function redraw(nvim, cbf, confType, packageList) {
 
   for (let package of packageList) {
     const latest = await getLatest(package.details.name, confType);
-    const vulnerable = await isVulnerable(package.details.name, confType, package.details.version);
+    const vulnerable = await vuln.isVulnerable(
+      package.details.name,
+      confType,
+      package.details.version
+    );
     if (cbf.join("\n") === nbf.join("\n")) await drawOne(nvim, package, latest, vulnerable);
   }
 }
@@ -145,7 +126,7 @@ async function start(nvim) {
 
   await redraw(nvim, bf, confType, packageList);
 
-  await populateVulnStats(packageList, confType);
+  await vuln.populateVulnStats(packageList, confType);
   await redraw(nvim, bf, confType, packageList);
 }
 

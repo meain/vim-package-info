@@ -1,6 +1,5 @@
-// const axios = require("axios");
-
 const https = require("follow-redirects").https;
+const utils = require("./utils");
 
 function getCoordinates(package, version, confType) {
   switch (confType) {
@@ -20,7 +19,6 @@ function getCoordinates(package, version, confType) {
 async function fetchVulns(packages, confType) {
   return new Promise((accept, reject) => {
     let coordinates = [];
-    // const url = "https://ossindex.sonatype.org/api/v3/component-report";
     for (let package of packages) {
       coordinates.push({
         name: package.details.name,
@@ -62,4 +60,27 @@ async function fetchVulns(packages, confType) {
   });
 }
 
-module.exports = { fetchVulns };
+async function isVulnerable(package, confType, version) {
+  const cachedVersion = utils.load(package + "@" + version, confType, true);
+  if (cachedVersion) return cachedVersion;
+  else return false;
+}
+
+async function populateVulnStats(packages, confType) {
+  try {
+    let data = await fetchVulns(packages, confType);
+    if (!data) return false;
+    for (let i in data) {
+      const dp = data[i];
+      const package = packages[i].details;
+
+      const vulnerable = dp.hasOwnProperty("vulnerabilities") && dp.vulnerabilities.length > 0;
+      utils.save(package.name + "@" + package.version, confType, vulnerable, true);
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+module.exports = { fetchVulns, populateVulnStats, isVulnerable };
