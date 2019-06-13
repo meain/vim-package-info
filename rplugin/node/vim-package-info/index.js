@@ -69,6 +69,16 @@ async function drawOne(nvim, package, latest, vulnerable) {
   await buffer.setVirtualText(1, lineNum, [...lp]);
 }
 
+const reflect = p => p.then(v => ({ v, status: "fulfilled" }), e => ({ e, status: "rejected" }));
+
+async function populateLatestInfo(packageList, confType) {
+  let waiters = [];
+  for (let package of packageList) {
+    waiters.push(reflect(getLatest(package.details.name, confType)));
+  }
+  await Promise.all(waiters);
+}
+
 async function redraw(nvim, cbf, confType, packageList) {
   const buffer = await nvim.nvim.buffer;
   const nbf = await buffer.getLines();
@@ -77,11 +87,7 @@ async function redraw(nvim, cbf, confType, packageList) {
 
   for (let package of packageList) {
     const latest = await getLatest(package.details.name, confType);
-    const vulnerable = await vuln.isVulnerable(
-      package.details.name,
-      confType,
-      package.details.version
-    );
+    const vulnerable = vuln.isVulnerable(package.details.name, confType, package.details.version);
     if (cbf.join("\n") === nbf.join("\n")) await drawOne(nvim, package, latest, vulnerable);
   }
 }
@@ -124,6 +130,7 @@ async function start(nvim) {
 
   const packageList = parseLines(confType, bf, data);
 
+  await populateLatestInfo(packageList, confType);
   await redraw(nvim, bf, confType, packageList);
 
   await vuln.populateVulnStats(packageList, confType);

@@ -91,7 +91,7 @@ function getVulnerability(package, version, confType) {
   else return false;
 }
 
-async function isVulnerable(package, confType, version) {
+function isVulnerable(package, confType, version) {
   try {
     const cachedVersion = utils.load(
       package + "@" + version.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0],
