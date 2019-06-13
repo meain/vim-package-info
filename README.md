@@ -1,6 +1,8 @@
 # vim-package-info ![](https://travis-ci.org/meain/vim-package-info.svg?branch=master)
 
-It lets you view the latest version of each package of your dependency.
+It lets you view the latest version of the packages you depend on and see if any of them are vulnerable.
+
+> Vulnerability detection is still a work in progress
 
 ![GIF](https://i.imgur.com/cnL0KI6.gif)
 
