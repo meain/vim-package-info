@@ -130,7 +130,9 @@ async function start(nvim) {
 
   const packageList = parseLines(confType, bf, data);
 
+  await nvim.nvim.command(`echo "Fetching version info for ${packageList.length} packages..."`);
   await populateLatestInfo(packageList, confType);
+  await nvim.nvim.command("echo ''");
   await redraw(nvim, bf, confType, packageList);
 
   await vuln.populateVulnStats(packageList, confType);
