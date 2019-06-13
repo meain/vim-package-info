@@ -41,7 +41,6 @@ async function fetchVulns(packages, confType) {
             });
         }
         coordinates = coordinates.splice(0, 119);
-        console.log(coordinates.length, coordinates);
         if (coordinates.length === 0) accept([]);
         const c = coordinates.map(c => c.coordinate);
         const data = JSON.stringify({ coordinates: c });

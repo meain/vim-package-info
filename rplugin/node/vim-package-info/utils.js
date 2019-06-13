@@ -76,12 +76,22 @@ function getLatestVersion(data, confType) {
   return false;
 }
 
+const gf = function(s, char) {
+  var arr = new Array();
+  arr[0] = s.substring(0, s.indexOf(char));
+  arr[1] = s.substring(s.indexOf(char) + 1);
+  return arr;
+};
+
 async function fetchInfo(package, confType) {
   return new Promise((accept, reject) => {
     const url = getUrl(package, confType);
+    const options = {
+      headers: { "User-Agent": "vim-package-info (github.com/meain/vim-package-info)" },
+    };
     if (url)
       https
-        .get(url, resp => {
+        .get(url, options, resp => {
           let data = "";
           resp.on("data", chunk => {
             data += chunk;
