@@ -21,7 +21,7 @@ function getCoordinates(package, version, confType) {
 
 async function fetchVulns(packages, confType) {
   return new Promise((accept, reject) => {
-    const firstRun = lastRequestTime === null ? true : false
+    const firstRun = lastRequestTime === null ? true : false;
     setTimeout(
       () => {
         if (!firstRun && lastRequestTime > new Date().getTime() - 2500) accept([]);
@@ -81,16 +81,28 @@ async function fetchVulns(packages, confType) {
   });
 }
 
-function getVulnerability(package, version, confType){
-  const cachedVersion = utils.load(package + "@" + version.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0], confType, true);
+function getVulnerability(package, version, confType) {
+  const cachedVersion = utils.load(
+    package + "@" + version.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0],
+    confType,
+    true
+  );
   if (cachedVersion !== null) return cachedVersion;
   else return false;
 }
 
 async function isVulnerable(package, confType, version) {
-  const cachedVersion = utils.load(package + "@" + version.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0], confType, true);
-  if (cachedVersion !== null) return cachedVersion.vulnerabilities.length > 0;
-  else return false;
+  try {
+    const cachedVersion = utils.load(
+      package + "@" + version.match(/(\d+\.)?(\d+\.)?(\*|\d+)/)[0],
+      confType,
+      true
+    );
+    if (cachedVersion !== null) return cachedVersion.vulnerabilities.length > 0;
+    else return false;
+  } catch (error) {
+    return false;
+  }
 }
 
 async function populateVulnStats(packages, confType) {
