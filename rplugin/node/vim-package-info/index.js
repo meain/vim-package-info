@@ -69,12 +69,19 @@ async function drawOne(nvim, package, latest, vulnerable) {
   await buffer.setVirtualText(1, lineNum, [...lp]);
 }
 
-const reflect = p => p.then(v => ({ v, status: "fulfilled" }), e => ({ e, status: "rejected" }));
+const reflect = (p, cb) =>
+  p.then(
+    v => {
+      cb();
+      return { v, status: "fulfilled" };
+    },
+    e => ({ e, status: "rejected" })
+  );
 
-async function populateLatestInfo(packageList, confType) {
+async function populateLatestInfo(packageList, confType, cb) {
   let waiters = [];
   for (let package of packageList) {
-    waiters.push(reflect(getLatest(package.details.name, confType)));
+    waiters.push(reflect(getLatest(package.details.name, confType), cb));
   }
   await Promise.all(waiters);
 }
@@ -131,7 +138,9 @@ async function start(nvim) {
   const packageList = parseLines(confType, bf, data);
 
   await nvim.nvim.command(`echo "Fetching version info for ${packageList.length} packages..."`);
-  await populateLatestInfo(packageList, confType);
+  await populateLatestInfo(packageList, confType, () => {
+    redraw(nvim, bf, confType, packageList);
+  });
   await nvim.nvim.command("echo ''");
   await redraw(nvim, bf, confType, packageList);
 
