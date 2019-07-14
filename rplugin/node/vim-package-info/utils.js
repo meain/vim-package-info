@@ -55,6 +55,23 @@ function getUrl(package, confType) {
   }
 }
 
+function getNameRegex(confType) {
+  switch (confType) {
+    case "javascript":
+      return /['|"](.*)['|"] *:/;
+    case "rust":
+      return /([a-zA-Z0-9\-_]*) *=.*/;
+    case "python:requirements":
+      return /^ *([a-zA-Z_]+[a-zA-Z0-9\-_]*).*/;
+    case "python:pipfile":
+      return /"?([a-zA-Z0-9\-_]*)"? *=.*/;
+    case "python:pyproject":
+      return /['|"]?([a-zA-Z0-9\-_]*)['|"]? *=.*/;
+    default:
+      return false;
+  }
+}
+
 function getLatestVersion(data, confType) {
   data = JSON.parse(data);
   switch (confType) {
@@ -177,9 +194,10 @@ function load(package, confType, vuln = false) {
 }
 
 function createVulStats(vulnerabilities, package) {
-  let vv = [`## Vulnerabilities for ${package}`, "", ""];
+  console.log("vulnerabilities:", vulnerabilities)
+  let vv = [`# Vulnerabilities for ${package}`, "", ""];
   for (let v of vulnerabilities) {
-    vv.push(`### ${v.title}${v.cwe ? `(${v.cwe})` : ""}`);
+    vv.push(`## ${v.title}${v.cwe ? `(${v.cwe})` : ""}`);
     vv.push("");
     vv.push(v.description);
     vv.push(v.reference);
@@ -200,4 +218,5 @@ module.exports = {
   getConfigValues,
   determineFileKind,
   createVulStats,
+  getNameRegex
 };

@@ -49,7 +49,8 @@ function format(current, prefix, hl, latest, vulnerable = false) {
   let lpf = [["", hl]];
   const cd = diff.colorizeDiff(current, latest, hl);
 
-  if (vulnerable) lpf = [["   ", hl], [" vulnerable ", "VimPackageInfoVulnerable"], ...cd];
+  if (vulnerable)
+    lpf = [["   ", hl], [" vulnerable ", "VimPackageInfoVulnerable"], [" ", hl], ...cd];
   else lpf = [[`${prefix} `, hl], ...cd];
 
   return lpf;

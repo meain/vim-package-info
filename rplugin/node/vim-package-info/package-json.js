@@ -8,6 +8,8 @@ const rutils = require("./render_utils");
 
 const LANGUAGE = "javascript";
 const depGroups = ["dependencies", "devDependencies"];
+const markers = [[/["|'](dependencies)["|']/, /\}/], [/["|'](devDependencies)["|']/, /\}/]];
+const nameRegex = /['|"](.*)['|"] *:/;
 
 class PackageJson {
   getDeps(bufferContent) {
@@ -74,12 +76,11 @@ class PackageJson {
     const bufferLines = await buffer.getLines();
 
     const info = global.store.get(LANGUAGE, dep);
-    const markers = [[/["|'](dependencies)["|']/, /\}/], [/["|'](devDependencies)["|']/, /\}/]];
-    const nameRegex = /['|"](.*)['|"] *:/;
 
     const lineNumber = rutils.getDepLine(bufferLines, markers, nameRegex, dep);
+    const isVulnerable = "vulnerabilities" in info && info.vulnerabilities.length > 0;
     if (lineNumber)
-      await render.drawOne(handle, lineNumber, info.current_version, info.latest, false);
+      await render.drawOne(handle, lineNumber, info.current_version, info.latest, isVulnerable);
   }
 }
 

@@ -1,6 +1,7 @@
 const utils = require("./utils.js");
 const Store = require("./more.js").default;
 const render = require("./render.js");
+const vulnerability = require("./vulnerability.js");
 
 const PackageJson = require("./package-json.js").default;
 const CargoParser = require("./cargo.js").default;
@@ -57,10 +58,22 @@ async function run(handle) {
   const depList = parser.getDeps(bufferContent);
   parser.updatePackageVersions(depList);
   parser.updateCurrentVersions(depList, filePath);
+  vulnerability.updateVulnerabilities(depList, confType);
 }
 
 module.exports = handle => {
   handle.setOptions({ dev: false });
+  handle.registerCommand(
+    "ShowVulnerabilities",
+    async () => {
+      try {
+        vulnerability.showVulnerabilities(handle);
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    { sync: false }
+  );
 
   ["BufEnter", "InsertLeave", "TextChanged"].forEach(e => {
     handle.registerAutocmd(e, async () => await run(handle), {

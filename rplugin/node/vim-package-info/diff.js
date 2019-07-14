@@ -20,7 +20,7 @@ function colorizeDiff(current, latest, hl) {
   if (latest) l = semverUtils.parse(latest);
 
   let cd = [];
-  if (c) cd = [[c.major, hl], [".", hl], [c.minor, hl], [".", hl], [c.patch, hl]];
+  if (c) cd = [[current, hl]];
   else cd = [["unavailable", hl]];
 
   if (l === null) return cd;
