@@ -4,6 +4,8 @@ const render = require("./render.js");
 
 const PackageJson = require("./package-json.js").default;
 const CargoParser = require("./cargo.js").default;
+const RequirementsTxt = require("./requirements-txt.js").default;
+const PipfileParser = require("./pipfile.js").default;
 
 let globalHandle = null;
 function callRenderer(confType, dep) {
@@ -25,6 +27,12 @@ function getPackageParser(confType) {
       break;
     case "javascript":
       return new PackageJson();
+      break;
+    case "python:requirements":
+      return new RequirementsTxt();
+      break;
+    case "python:pipfile":
+      return new PipfileParser();
       break;
   }
 }

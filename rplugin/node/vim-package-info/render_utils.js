@@ -15,7 +15,7 @@ function isStart(line, depMarkers) {
 }
 
 function getDepLine(lines, depMarkers, nameRegex, name, end_maybe_start_of_next = false) {
-  let start = false;
+  let start = depMarkers === null ? true : false;
   let end = false;
   for (let i = 0; i < lines.length; i++) {
     if (start) {
