@@ -26,7 +26,6 @@ function getDepLine(lines, depMarkers, nameRegex, name, end_maybe_start_of_next 
       }
 
       const vals = lines[i].match(nameRegex);
-      console.log(vals);
       if (
         vals !== null &&
         vals !== undefined &&

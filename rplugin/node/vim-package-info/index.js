@@ -6,6 +6,7 @@ const PackageJson = require("./package-json.js").default;
 const CargoParser = require("./cargo.js").default;
 const RequirementsTxt = require("./requirements-txt.js").default;
 const PipfileParser = require("./pipfile.js").default;
+const PyprojectToml = require("./pyproject-toml.js").default;
 
 let globalHandle = null;
 function callRenderer(confType, dep) {
@@ -33,6 +34,9 @@ function getPackageParser(confType) {
       break;
     case "python:pipfile":
       return new PipfileParser();
+      break;
+    case "python:pyproject":
+      return new PyprojectToml();
       break;
   }
 }
