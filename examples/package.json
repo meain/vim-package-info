@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "this-package-does-not-exists-sdflkjsd": "",
     "babel-eslint": "^8.2.6",
     "react-completor": "",
     "color-hash": "^1.0.3",
