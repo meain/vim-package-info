@@ -1,19 +1,18 @@
 const fs = require("fs");
 const path = require("path");
-const lockfile = require("@yarnpkg/lockfile");
+const toml = require("toml");
 
 const utils = require("./utils");
 const render = require("./render");
 const rutils = require("./render_utils");
-const toml = require("toml");
 
 const LANGUAGE = "rust";
+const depGroups = ["dependencies", "build-dependencies", "dev-dependencies"];
 
 class CargoParser {
   getDeps(bufferContent) {
     const data = toml.parse(bufferContent);
     const depList = [];
-    const depGroups = ["dependencies", "build-dependencies", "dev-dependencies"];
 
     for (let dg of depGroups) {
       if (dg in data)

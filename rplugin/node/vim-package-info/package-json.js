@@ -5,24 +5,22 @@ const lockfile = require("@yarnpkg/lockfile");
 const utils = require("./utils");
 const render = require("./render");
 const rutils = require("./render_utils");
+
 const LANGUAGE = "javascript";
+const depGroups = ["dependencies", "devDependencies"];
 
 class PackageJson {
   getDeps(bufferContent) {
     const data = JSON.parse(bufferContent);
     const depList = [];
 
-    if ("dependencies" in data)
-      for (let dep in data["dependencies"]) {
-        global.store.set(LANGUAGE, dep, { semver_version: data["dependencies"][dep] });
-        depList.push(dep);
-      }
-
-    if ("devDependencies" in data)
-      for (let dep in data["devDependencies"]) {
-        global.store.set(LANGUAGE, dep, { semver_version: data["devDependencies"][dep] });
-        depList.push(dep);
-      }
+    for (let dg of depGroups) {
+      if (dg in data)
+        for (let dep in data[dg]) {
+          global.store.set(LANGUAGE, dep, { semver_version: data[dg][dep] });
+          depList.push(dep);
+        }
+    }
 
     return depList;
   }
@@ -47,17 +45,14 @@ class PackageJson {
     if (fs.existsSync(npm_lock_filename)) {
       const lockfile_content = JSON.parse(fs.readFileSync(npm_lock_filename, "utf-8"));
       for (let dep of depList) {
-        if ("dependencies" in lockfile_content && dep in lockfile_content["dependencies"])
-          global.store.set(LANGUAGE, dep, {
-            current_version: lockfile_content["dependencies"][dep]["version"] || null,
-          });
-        else if (
-          "devDependencies" in lockfile_content &&
-          dep in lockfile_content["devDependencies"]
-        )
-          global.store.set(LANGUAGE, dep, {
-            current_version: lockfile_content["devDependencies"][dep]["version"] || null,
-          });
+        for (let dg of depGroups) {
+          if (dg in lockfile_content && dep in lockfile_content[dg]) {
+            global.store.set(LANGUAGE, dep, {
+              current_version: lockfile_content[dg][dep]["version"] || null,
+            });
+            break;
+          }
+        }
       }
     } else if (fs.existsSync(yarn_lock_filename)) {
       const lockfile_content = lockfile.parse(fs.readFileSync(yarn_lock_filename, "utf-8"));
