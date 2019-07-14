@@ -59,6 +59,7 @@ async function run(handle) {
   parser.updatePackageVersions(depList);
   parser.updateCurrentVersions(depList, filePath);
   vulnerability.updateVulnerabilities(depList, confType);
+
 }
 
 module.exports = handle => {
