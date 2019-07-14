@@ -21,10 +21,12 @@ function colorizeDiff(current, latest, hl) {
 
   let cd = [];
   if (c) cd = [[c.major, hl], [".", hl], [c.minor, hl], [".", hl], [c.patch, hl]];
+  else cd = [["unavailable", hl]];
+
   if (l === null) return cd;
 
   cd = [...cd, [" ⇒ ", hl]];
-  if (parseInt(l.major) > parseInt(c.major)) {
+  if (c !== null && parseInt(l.major) > parseInt(c.major)) {
     cd = [
       ...cd,
       [l.major, "VimPackageInfoMajor"],
@@ -33,7 +35,7 @@ function colorizeDiff(current, latest, hl) {
       [".", hl],
       [l.patch, "VimPackageInfoMajor"],
     ];
-  } else if (parseInt(l.minor) > parseInt(c.minor)) {
+  } else if (c !== null && parseInt(l.minor) > parseInt(c.minor)) {
     cd = [
       ...cd,
       [l.major, hl],
@@ -42,7 +44,7 @@ function colorizeDiff(current, latest, hl) {
       [".", hl],
       [l.patch, "VimPackageInfoMinor"],
     ];
-  } else if (parseInt(l.patch) > parseInt(c.patch)) {
+  } else if (c !== null && parseInt(l.patch) > parseInt(c.patch)) {
     cd = [
       ...cd,
       [l.major, hl],

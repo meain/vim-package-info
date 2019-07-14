@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "babel-eslint": "^8.2.6",
+    "react-completor": "",
     "color-hash": "^1.0.3",
     "express": "^4.0.0",
     "preact-compat": "^3.18.4",
