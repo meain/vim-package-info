@@ -3,9 +3,10 @@ const Store = require("./more.js").default;
 const render = require("./render.js");
 
 const PackageJson = require("./package-json.js").default;
+const CargoParser = require("./cargo.js").default;
 
 let globalHandle = null;
-function callRenderer(confType, dep, value) {
+function callRenderer(confType, dep) {
   const parser = getPackageParser(confType);
   if (globalHandle) parser.render(globalHandle, dep);
 }
@@ -19,6 +20,9 @@ if (!("store" in global)) {
 // do not move to utils, will create cyclic dependency
 function getPackageParser(confType) {
   switch (confType) {
+    case "rust":
+      return new CargoParser();
+      break;
     case "javascript":
       return new PackageJson();
       break;

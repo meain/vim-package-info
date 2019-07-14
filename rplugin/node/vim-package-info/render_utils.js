@@ -14,7 +14,7 @@ function isStart(line, depMarkers) {
   return false;
 }
 
-function getDepLine(lines, depMarkers, nameRegex, name) {
+function getDepLine(lines, depMarkers, nameRegex, name, end_maybe_start_of_next = false) {
   let start = false;
   let end = false;
   for (let i = 0; i < lines.length; i++) {
@@ -22,11 +22,20 @@ function getDepLine(lines, depMarkers, nameRegex, name) {
       if (end && end !== null && end.test(lines[i])) {
         start = false;
         end = false;
+        if (end_maybe_start_of_next) --i;
       }
 
       const vals = lines[i].match(nameRegex);
-      if (vals !== null && vals !== undefined && 1 in vals && vals[1].trim() === name.trim())
+      console.log(vals);
+      if (
+        vals !== null &&
+        vals !== undefined &&
+        1 in vals &&
+        vals[1] !== null &&
+        vals[1].trim() === name.trim()
+      ) {
         return i;
+      }
       //eslint-disable-next-line
     } else if (!!isStart(lines[i], depMarkers)) {
       start = true;
