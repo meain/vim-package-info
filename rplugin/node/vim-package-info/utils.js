@@ -1,3 +1,4 @@
+const path = require("path");
 const https = require("follow-redirects").https;
 
 if (!("vimnpmcache" in global)) {
@@ -19,7 +20,9 @@ if (!("vimnpmcache" in global)) {
   };
 }
 
-function determineFileKind(filename) {
+function determineFileKind(filePath) {
+  const filename = path.basename(filePath);
+
   if (filename.match(/^.*?requirements.txt$/)) {
     return "python:requirements";
   }
@@ -82,6 +85,30 @@ const gf = function(s, char) {
   arr[1] = s.substring(s.indexOf(char) + 1);
   return arr;
 };
+
+async function fetcher(url) {
+  return new Promise((accept, reject) => {
+    const options = {
+      headers: { "User-Agent": "vim-package-info (github.com/meain/vim-package-info)" },
+    };
+    if (url)
+      https
+        .get(url, options, resp => {
+          let data = "";
+          resp.on("data", chunk => {
+            data += chunk;
+          });
+          resp.on("end", () => {
+            accept(data);
+          });
+        })
+        .on("error", err => {
+          console.log("Error: " + err.message);
+          reject(false);
+        });
+    else reject(false);
+  });
+}
 
 async function fetchInfo(package, confType) {
   return new Promise((accept, reject) => {
@@ -164,6 +191,7 @@ function createVulStats(vulnerabilities, package) {
 }
 
 module.exports = {
+  fetcher,
   fetchInfo,
   getLatestVersion,
   save,
