@@ -28,6 +28,8 @@ class CargoParser {
 
   updatePackageVersions(depList) {
     for (let dep of depList) {
+      if ("latest" in global.store.get(LANGUAGE, dep)) return;
+
       const fetchURL = `https://crates.io/api/v1/crates/${dep}`;
       utils.fetcher(fetchURL).then(data => {
         data = JSON.parse(data);
