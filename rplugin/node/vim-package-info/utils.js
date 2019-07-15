@@ -77,9 +77,10 @@ async function fetcher(url) {
         })
         .on("error", err => {
           console.log("Error: " + err.message);
-          reject(false);
         });
-    else reject(false);
+    else {
+      console.log("Error: no url provided" );
+    }
   });
 }
 
