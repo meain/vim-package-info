@@ -31,6 +31,9 @@ class PackageJson {
     for (let dep of depList) {
       const fetchURL = `https://registry.npmjs.org/${dep}`;
       utils.fetcher(fetchURL).then(data => {
+        const semver_version = global.store.get(LANGUAGE, dep).semver_version;
+        if (/^(http[s]*|file):\/\//.test(semver_version)) return; // don't bother checking in this case
+
         data = JSON.parse(data);
         const latest = data["dist-tags"]["latest"];
         const versions = Object.keys(data["versions"]);
