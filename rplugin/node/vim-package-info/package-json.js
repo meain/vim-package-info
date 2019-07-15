@@ -35,8 +35,11 @@ class PackageJson {
         if (/^(http[s]*|file):\/\//.test(semver_version)) return; // don't bother checking in this case
 
         data = JSON.parse(data);
-        const latest = data["dist-tags"]["latest"];
-        const versions = Object.keys(data["versions"]);
+        let latest = null;
+        let versions = null;
+        if ("dist-tags" in data && "latest" in data["dist-tags"])
+          latest = data["dist-tags"]["latest"];
+        if ("versions" in data) versions = Object.keys(data["versions"]);
         global.store.set(LANGUAGE, dep, { latest, versions });
       });
     }

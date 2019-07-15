@@ -63,7 +63,7 @@ async function run(handle) {
 }
 
 module.exports = handle => {
-  handle.setOptions({ dev: false });
+  handle.setOptions({ dev: true });
   handle.registerCommand(
     "ShowVulnerabilities",
     async () => {
