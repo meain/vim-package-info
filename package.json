@@ -10,6 +10,7 @@
   "author": "Abin Simon <abinsimon10@gmail.com> (meain.io)",
   "license": "MIT",
   "dependencies": {
+    "@yarnpkg/lockfile": "^1.1.0",
     "follow-redirects": "^1.7.0",
     "mocha": "^6.1.4",
     "semver-utils": "^1.1.4",

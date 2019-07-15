@@ -1,25 +1,9 @@
+const path = require("path");
 const https = require("follow-redirects").https;
 
-if (!("vimnpmcache" in global)) {
-  // you might think that we do not have to have two diffent objects
-  // but there might be a single project with both package.json and Cargo.toml
-  global.vimnpmcache = {
-    javascript: {},
-    rust: {},
-    "python:requirements": {},
-    "python:pipfile": {},
-    "python:pyproject": {},
-  };
-  global.viminfovulncache = {
-    javascript: {},
-    rust: {},
-    "python:requirements": {},
-    "python:pipfile": {},
-    "python:pyproject": {},
-  };
-}
+function determineFileKind(filePath) {
+  const filename = path.basename(filePath);
 
-function determineFileKind(filename) {
   if (filename.match(/^.*?requirements.txt$/)) {
     return "python:requirements";
   }
@@ -37,55 +21,46 @@ function determineFileKind(filename) {
   }
 }
 
-function getUrl(package, confType) {
+// TODO: make use of this
+function getUrl(dep, confType) {
   switch (confType) {
     case "javascript":
-      return `https://registry.npmjs.org/${package}`;
+      return `https://registry.npmjs.org/${dep}`;
     case "rust":
-      return `https://crates.io/api/v1/crates/${package}`;
+      return `https://crates.io/api/v1/crates/${dep}`;
     case "python:requirements":
     case "python:pipfile":
     case "python:pyproject":
-      return `https://pypi.org/pypi/${package}/json`;
+      return `https://pypi.org/pypi/${dep}/json`;
     default:
       return false;
   }
 }
 
-function getLatestVersion(data, confType) {
-  data = JSON.parse(data);
-  switch (confType) {
-    case "javascript":
-      if ("dist-tags" in data) {
-        return data["dist-tags"].latest;
-      }
-      break;
-    case "rust":
-      if ("crate" in data) {
-        return data["crate"].max_version;
-      }
-      break;
-    case "python:requirements":
-    case "python:pipfile":
-    case "python:pyproject":
-      if ("info" in data) {
-        return data["info"].version;
-      }
-      break;
-  }
-  return false;
+// TODO: make this the only way to get this info + do for markers
+function getNameRegex(confType) {
+  return {
+    javascript: /['|"](.*)['|"] *:/,
+    rust: /([a-zA-Z0-9\-_]*) *=.*/,
+    "python:requirements": /^ *([a-zA-Z_]+[a-zA-Z0-9\-_]*).*/,
+    "python:pipfile": /"?([a-zA-Z0-9\-_]*)"? *=.*/,
+    "python:pyproject": /['|"]?([a-zA-Z0-9\-_]*)['|"]? *=.*/,
+  }[confType];
 }
 
-const gf = function(s, char) {
-  var arr = new Array();
-  arr[0] = s.substring(0, s.indexOf(char));
-  arr[1] = s.substring(s.indexOf(char) + 1);
-  return arr;
-};
+function getDepMarkers(confType) {
+  // [ [start, end], [start, end] ]
+  return {
+    javascript: [[/["|'](dependencies)["|']/, /\}/], [/["|'](devDependencies)["|']/, /\}/]],
+    rust: [[/\[(.*dependencies)\]/, /^ *\[.*\].*/]],
+    "python:requirements": null,
+    "python:pipfile": [[/\[(packages)\]/, /^ *\[.*\].*/], [/\[(dev-packages)\]/, /^ *\[.*\].*/]],
+    "python:pyproject": [[/\[(.*dependencies)\]/, /^ *\[.*\].*/]],
+  }[confType];
+}
 
-async function fetchInfo(package, confType) {
+async function fetcher(url) {
   return new Promise((accept, reject) => {
-    const url = getUrl(package, confType);
     const options = {
       headers: { "User-Agent": "vim-package-info (github.com/meain/vim-package-info)" },
     };
@@ -102,7 +77,6 @@ async function fetchInfo(package, confType) {
         })
         .on("error", err => {
           console.log("Error: " + err.message);
-          global.vimnpmcache[confType][package] = false;
           reject(false);
         });
     else reject(false);
@@ -130,29 +104,11 @@ async function getConfigValues(nvim) {
   return { prefix, hl_group };
 }
 
-function save(package, confType, data, vuln = false) {
-  // TODO: refactor vuln
-  if (vuln) {
-    global.viminfovulncache[confType][package] = data;
-  } else {
-    global.vimnpmcache[confType][package] = data;
-  }
-}
-
-function load(package, confType, vuln = false) {
-  if (vuln) {
-    if (package in global.viminfovulncache[confType])
-      return global.viminfovulncache[confType][package];
-  } else {
-    if (package in global.vimnpmcache[confType]) return global.vimnpmcache[confType][package];
-  }
-  return null;
-}
-
-function createVulStats(vulnerabilities, package) {
-  let vv = [`## Vulnerabilities for ${package}`, "", ""];
+// TODO: move to vulnerabilities.js file
+function createVulStats(vulnerabilities, dep) {
+  let vv = [`# Vulnerabilities for ${dep}`, "", ""];
   for (let v of vulnerabilities) {
-    vv.push(`### ${v.title}${v.cwe ? `(${v.cwe})` : ""}`);
+    vv.push(`## ${v.title}${v.cwe ? `(${v.cwe})` : ""}`);
     vv.push("");
     vv.push(v.description);
     vv.push(v.reference);
@@ -164,12 +120,11 @@ function createVulStats(vulnerabilities, package) {
 }
 
 module.exports = {
-  fetchInfo,
-  getLatestVersion,
-  save,
-  load,
+  fetcher,
   getUrl,
   getConfigValues,
   determineFileKind,
   createVulStats,
+  getNameRegex,
+  getDepMarkers,
 };
