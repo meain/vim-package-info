@@ -4,11 +4,7 @@ It lets you view the latest version of the packages you depend on and see if any
 
 > Vulnerability detection is still a work in progress ([disabled at the moment](https://ossindex.sonatype.org/doc/legacy-migration))
 
-![GIF](https://i.imgur.com/cnL0KI6.gif)
-
-| ![](https://i.imgur.com/YTaFHzs.png) | ![](https://i.imgur.com/HqgozdY.png) | ![](https://i.imgur.com/evCwnHZ.png) | ![](https://i.imgur.com/PzX89H1.png) | ![](https://i.imgur.com/s6Cu8oZ.png) |
-| :----------------------------------: | :----------------------------------: | :----------------------------------: | :----------------------------------: | :----------------------------------: |
-|              Cargo.toml              |             package.json             |           requirements.txt           |               Pipfile                |             pyproject.toml           |
+![](https://i.imgur.com/pzIrEkq.png)
 
 **Currently supports:**
  * javascript:
