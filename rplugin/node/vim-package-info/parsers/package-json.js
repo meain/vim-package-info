@@ -2,9 +2,9 @@ const fs = require("fs");
 const path = require("path");
 const lockfile = require("@yarnpkg/lockfile");
 
-const utils = require("./utils");
-const render = require("./render");
-const rutils = require("./render_utils");
+const utils = require("../utils");
+const render = require("../render");
+const rutils = require("../render_utils");
 
 const LANGUAGE = "javascript";
 const depGroups = ["dependencies", "devDependencies"];

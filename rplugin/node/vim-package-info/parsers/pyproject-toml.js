@@ -2,9 +2,9 @@ const fs = require("fs");
 const path = require("path");
 const toml = require("toml");
 
-const utils = require("./utils");
-const render = require("./render");
-const rutils = require("./render_utils");
+const utils = require("../utils");
+const render = require("../render");
+const rutils = require("../render_utils");
 
 const LANGUAGE = "python:pyproject";
 const depGroups = ["dependencies", "dev-dependencies"];

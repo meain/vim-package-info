@@ -1,6 +1,6 @@
-const utils = require("./utils");
-const render = require("./render");
-const rutils = require("./render_utils");
+const utils = require("../utils");
+const render = require("../render");
+const rutils = require("../render_utils");
 
 const LANGUAGE = "python:requirements";
 const markers = null;
