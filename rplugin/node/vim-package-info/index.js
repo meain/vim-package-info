@@ -1,13 +1,13 @@
 const utils = require("./utils.js");
 const Store = require("./more.js").default;
 const render = require("./render.js");
-const vulnerability = require("./vulnerability.js");
+// const vulnerability = require("./vulnerability.js");
 
-const PackageJson = require("./package-json.js").default;
-const CargoParser = require("./cargo.js").default;
-const RequirementsTxt = require("./requirements-txt.js").default;
-const PipfileParser = require("./pipfile.js").default;
-const PyprojectToml = require("./pyproject-toml.js").default;
+const PackageJson = require("./parsers/package-json.js").default;
+const CargoParser = require("./parsers/cargo.js").default;
+const RequirementsTxt = require("./parsers/requirements-txt.js").default;
+const PipfileParser = require("./parsers/pipfile.js").default;
+const PyprojectToml = require("./parsers/pyproject-toml.js").default;
 
 let globalHandle = null;
 function callRenderer(confType, dep) {
@@ -58,23 +58,23 @@ async function run(handle) {
   const depList = parser.getDeps(bufferContent);
   parser.updatePackageVersions(depList);
   parser.updateCurrentVersions(depList, filePath);
-  vulnerability.updateVulnerabilities(depList, confType);
+  // vulnerability.updateVulnerabilities(depList, confType);
 
 }
 
 module.exports = handle => {
   handle.setOptions({ dev: true });
-  handle.registerCommand(
-    "ShowVulnerabilities",
-    async () => {
-      try {
-        vulnerability.showVulnerabilities(handle);
-      } catch (err) {
-        console.error(err);
-      }
-    },
-    { sync: false }
-  );
+  // handle.registerCommand(
+  //   "ShowVulnerabilities",
+  //   async () => {
+  //     try {
+  //       vulnerability.showVulnerabilities(handle);
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   },
+  //   { sync: false }
+  // );
 
   ["BufEnter", "InsertLeave", "TextChanged"].forEach(e => {
     handle.registerAutocmd(e, async () => await run(handle), {
