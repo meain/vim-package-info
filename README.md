@@ -74,18 +74,3 @@ This is because `virtualtext` context is the same for all the plugins and if one
 it will clear the `virutaltext` that was made by all plugins.
 
 Not a lot can be done about this, but in the case of ALE you can checkout [#14](https://github.com/meain/vim-package-info/issues/14).
-
-## Development
-
-### Adding a new config file type
-
-It is more or less just adding a few regex templates and a some other stuff.
-Here are a rough sketch of the steps.
-Feel free to open an issue and ask if you need more help.
-
-1. `parser.js > depMarkers` : specify start and end tokens for different groups
-2. `parser.js > nameParserRegex` : regex to find the name from a line in the config
-3. `parser.js > versionParserRegex` : regex to find the current version from a line in the config
-4. `utils.js` : Add key to `global.vimnpmcache`
-5. `utils.js > getUrl` : Add a url formatter
-6. `utils.js > getLatestVersion` : Find latest version from the received data
