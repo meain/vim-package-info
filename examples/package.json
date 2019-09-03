@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "babel-eslint": "^8.2.6",
+    "this-package-does-not-exists-sdflkjsd": "",
+    "babel-eslint": "http://your-personal-github-thing",
+    "react-completor": "",
     "color-hash": "^1.0.3",
     "express": "^4.0.0",
     "preact-compat": "^3.18.4",
