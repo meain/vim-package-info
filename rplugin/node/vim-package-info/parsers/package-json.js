@@ -46,35 +46,43 @@ class PackageJson {
   }
 
   updateCurrentVersions(depList, filePath) {
-    const dir = path.dirname(filePath);
-    const npm_lock_filename = path.join(dir, "package-lock.json");
-    const yarn_lock_filename = path.join(dir, "yarn.lock");
+    let found = false;
+    let dir = path.resolve(path.dirname(filePath));
 
-    if (fs.existsSync(npm_lock_filename)) {
-      const lockfile_content = JSON.parse(fs.readFileSync(npm_lock_filename, "utf-8"));
-      for (let dep of depList) {
-        for (let dg of depGroups) {
-          if (dg in lockfile_content && dep in lockfile_content[dg]) {
-            global.store.set(LANGUAGE, dep, {
-              current_version: lockfile_content[dg][dep]["version"] || null,
-            });
-            break;
+    do {
+      const npm_lock_filename = path.join(dir, "package-lock.json");
+      const yarn_lock_filename = path.join(dir, "yarn.lock");
+
+      if (fs.existsSync(npm_lock_filename)) {
+        found = true;
+        const lockfile_content = JSON.parse(fs.readFileSync(npm_lock_filename, "utf-8"));
+        for (let dep of depList) {
+          for (let dg of depGroups) {
+            if (dg in lockfile_content && dep in lockfile_content[dg]) {
+              global.store.set(LANGUAGE, dep, {
+                current_version: lockfile_content[dg][dep]["version"] || null,
+              });
+              break;
+            }
           }
         }
-      }
-    } else if (fs.existsSync(yarn_lock_filename)) {
-      const lockfile_content = lockfile.parse(fs.readFileSync(yarn_lock_filename, "utf-8"));
-      for (let dep of depList) {
-        for (let ld of Object.keys(lockfile_content["object"])) {
-          if (ld.split("@")[0] === dep) {
-            const current_version = lockfile_content["object"][ld].version;
-            global.store.set(LANGUAGE, dep, {
-              current_version,
-            });
+      } else if (fs.existsSync(yarn_lock_filename)) {
+        found = true;
+        const lockfile_content = lockfile.parse(fs.readFileSync(yarn_lock_filename, "utf-8"));
+        for (let dep of depList) {
+          for (let ld of Object.keys(lockfile_content["object"])) {
+            if (ld.split("@")[0] === dep) {
+              const current_version = lockfile_content["object"][ld].version;
+              global.store.set(LANGUAGE, dep, {
+                current_version,
+              });
+            }
           }
         }
+      } else {
+        dir = path.dirname(dir);
       }
-    }
+    } while (!found && dir !== path.dirname(dir));
   }
 
   async render(handle, dep) {
