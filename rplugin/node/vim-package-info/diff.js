@@ -35,27 +35,36 @@ function colorizeDiff(current, latest, hl) {
       [".", hl],
       [l.patch, "VimPackageInfoMajor"],
     ];
-  } else if (c !== null && parseInt(l.minor) > parseInt(c.minor)) {
-    cd = [
-      ...cd,
-      [l.major, hl],
-      [".", hl],
-      [l.minor, "VimPackageInfoMinor"],
-      [".", hl],
-      [l.patch, "VimPackageInfoMinor"],
-    ];
-  } else if (c !== null && parseInt(l.patch) > parseInt(c.patch)) {
-    cd = [
-      ...cd,
-      [l.major, hl],
-      [".", hl],
-      [l.minor, hl],
-      [".", hl],
-      [l.patch, "VimPackageInfoPatch"],
-    ];
+  } else if (c !== null && parseInt(l.major === parseInt(c.major))) {
+    if (c !== null && parseInt(l.minor) > parseInt(c.minor)) {
+      cd = [
+        ...cd,
+        [l.major, hl],
+        [".", hl],
+        [l.minor, "VimPackageInfoMinor"],
+        [".", hl],
+        [l.patch, "VimPackageInfoMinor"],
+      ];
+    } else if (c !== null && parseInt(l.minor) === parseInt(c.minor)) {
+      if (c !== null && parseInt(l.patch) > parseInt(c.patch)) {
+        cd = [
+          ...cd,
+          [l.major, hl],
+          [".", hl],
+          [l.minor, hl],
+          [".", hl],
+          [l.patch, "VimPackageInfoPatch"],
+        ];
+      } else {
+        cd = [...cd, [l.major, hl], [".", hl], [l.minor, hl], [".", hl], [l.patch, hl]];
+      }
+    } else {
+      cd = [...cd, [l.major, hl], [".", hl], [l.minor, hl], [".", hl], [l.patch, hl]];
+    }
   } else {
     cd = [...cd, [l.major, hl], [".", hl], [l.minor, hl], [".", hl], [l.patch, hl]];
   }
+
   return cd;
 }
 
