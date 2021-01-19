@@ -35,7 +35,7 @@ function colorizeDiff(current, latest, hl) {
       [".", hl],
       [l.patch, "VimPackageInfoMajor"],
     ];
-  } else if (c !== null && parseInt(l.major === parseInt(c.major))) {
+  } else if (c !== null && parseInt(l.major) === parseInt(c.major)) {
     if (c !== null && parseInt(l.minor) > parseInt(c.minor)) {
       cd = [
         ...cd,
