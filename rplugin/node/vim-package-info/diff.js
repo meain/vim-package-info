@@ -1,71 +1,91 @@
-var semverUtils = require("semver-utils");
+function ensureNumber(value) {
+  const num = Number.parseInt(value || "0", 10);
+  return Number.isNaN(num) ? 0 : num;
+}
+
+function normalize(version) {
+  if (version) {
+    const versionWithoutRange = version.replace(/[\^>=<]/g, "");
+    const [versionWithoutBuild, buildText] = versionWithoutRange.trim().split("+", 2);
+    const [versionWithoutRelease, releaseText] = versionWithoutBuild.split("-", 2);
+    const [majorText, minorText, patchText] = versionWithoutRelease.split(".");
+    const major = ensureNumber(majorText);
+    const minor = ensureNumber(minorText);
+    const patch = ensureNumber(patchText);
+    const release = releaseText ? `-${releaseText}` : null;
+    const build = buildText ? `+${buildText}` : null;
+    const rest = (release || "") + (build || "");
+
+    return { major, minor, patch, release, build, rest };
+  }
+
+  return null;
+}
+
+const diffLevel = {
+  major: 3,
+  minor: 2,
+  patch: 1,
+  none: 0,
+};
+
+function calculateDiff(c, l) {
+  if (c && l) {
+    if (l.major > c.major) {
+      return diffLevel.major;
+    } else if (l.major === c.major) {
+      if (l.minor > c.minor) {
+        return diffLevel.minor;
+      } else if (l.minor === c.minor) {
+        if (l.patch > c.patch) {
+          return diffLevel.patch;
+        }
+      }
+    }
+  }
+
+  return diffLevel.none;
+}
+
+function getHighlight(level, diff, hl) {
+  if (diff >= level) {
+    switch (diff) {
+      case diffLevel.major:
+        return "VimPackageInfoMajor";
+      case diffLevel.minor:
+        return "VimPackageInfoMinor";
+      case diffLevel.patch:
+        return "VimPackageInfoPatch";
+    }
+  }
+
+  return hl;
+}
 
 function colorizeDiff(current, latest, hl) {
-  if (current) {
-    let currentStripped = current.match(/(\d+\.)?(\d+\.)?(\*|\d+)/); // in case of stuff like '-beta' and things
-    if (current) current = currentStripped[0];
-    else current = null;
-  }
+  const c = normalize(current);
+  const l = normalize(latest);
+  const diff = calculateDiff(c, l);
+  let highlight = [];
 
-  // stupid semver issue
-  if (current && current != undefined)
-    for (let i = current.split(".").length; i < 3; i++) current = current + ".0";
-  if (latest && latest != undefined)
-    for (let i = latest.split(".").length; i < 3; i++) latest = latest + ".0";
-
-  let c = null;
-  let l = null;
-
-  if (current) c = semverUtils.parse(current);
-  if (latest) l = semverUtils.parse(latest);
-
-  let cd = [];
-  if (c) cd = [[current, hl]];
-  else cd = [["unavailable", hl]];
-
-  if (l === null) return cd;
-
-  cd = [...cd, [" ⇒ ", hl]];
-  if (c !== null && parseInt(l.major) > parseInt(c.major)) {
-    cd = [
-      ...cd,
-      [l.major, "VimPackageInfoMajor"],
-      [".", hl],
-      [l.minor, "VimPackageInfoMajor"],
-      [".", hl],
-      [l.patch, "VimPackageInfoMajor"],
-    ];
-  } else if (c !== null && parseInt(l.major) === parseInt(c.major)) {
-    if (c !== null && parseInt(l.minor) > parseInt(c.minor)) {
-      cd = [
-        ...cd,
-        [l.major, hl],
-        [".", hl],
-        [l.minor, "VimPackageInfoMinor"],
-        [".", hl],
-        [l.patch, "VimPackageInfoMinor"],
-      ];
-    } else if (c !== null && parseInt(l.minor) === parseInt(c.minor)) {
-      if (c !== null && parseInt(l.patch) > parseInt(c.patch)) {
-        cd = [
-          ...cd,
-          [l.major, hl],
-          [".", hl],
-          [l.minor, hl],
-          [".", hl],
-          [l.patch, "VimPackageInfoPatch"],
-        ];
-      } else {
-        cd = [...cd, [l.major, hl], [".", hl], [l.minor, hl], [".", hl], [l.patch, hl]];
-      }
-    } else {
-      cd = [...cd, [l.major, hl], [".", hl], [l.minor, hl], [".", hl], [l.patch, hl]];
-    }
+  if (c) {
+    highlight.push([`${c.major}.${c.minor}.${c.patch}${c.rest}`, hl]);
   } else {
-    cd = [...cd, [l.major, hl], [".", hl], [l.minor, hl], [".", hl], [l.patch, hl]];
+    highlight.push(["unavailable", hl]);
   }
 
-  return cd;
+  highlight.push([" ⇒ ", hl]);
+  highlight.push([l.major.toString(), getHighlight(diffLevel.major, diff, hl)]);
+  highlight.push([".", hl]);
+  highlight.push([l.minor.toString(), getHighlight(diffLevel.minor, diff, hl)]);
+  highlight.push([".", hl]);
+  highlight.push([l.patch.toString(), getHighlight(diffLevel.patch, diff, hl)]);
+
+  if (l.rest) {
+    highlight.push([l.rest.toString(), getHighlight(diffLevel.patch, diff, hl)]);
+  }
+
+  return highlight;
 }
 
 module.exports = { colorizeDiff };
