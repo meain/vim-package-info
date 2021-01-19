@@ -7,8 +7,8 @@ const render = require("../render");
 const rutils = require("../render_utils");
 
 const LANGUAGE = "javascript";
-const depGroups = ["dependencies", "devDependencies"];
-const markers = [[/["|'](dependencies)["|']/, /\}/], [/["|'](devDependencies)["|']/, /\}/]];
+const depGroups = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
+const markers = depGroups.map((prop) => [new RegExp(`["|'](${prop})["|']`), /\}/]);
 const nameRegex = /['|"](.*)['|"] *:/;
 
 class PackageJson {
