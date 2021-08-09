@@ -74,3 +74,10 @@ This is because `virtualtext` context is the same for all the plugins and if one
 it will clear the `virutaltext` that was made by all plugins.
 
 Not a lot can be done about this, but in the case of ALE you can checkout [#14](https://github.com/meain/vim-package-info/issues/14).
+
+## Alternatives
+
+Other options for you to checkout if this does not work for you
+
+- [akinsho/dependency-assist.nvim](https://github.com/akinsho/dependency-assist.nvim)
+- [vuki656/package-info.nvim](https://github.com/vuki656/package-info.nvim)
