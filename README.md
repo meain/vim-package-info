@@ -81,3 +81,4 @@ Other options for you to checkout if this does not work for you
 
 - [akinsho/dependency-assist.nvim](https://github.com/akinsho/dependency-assist.nvim)
 - [vuki656/package-info.nvim](https://github.com/vuki656/package-info.nvim)
+- [mhinz/vim-crates](https://github.com/mhinz/vim-crates)
