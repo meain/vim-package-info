@@ -59,10 +59,11 @@ class RequirementsTxt {
     const info = global.store.get(LANGUAGE, dep);
 
     // TODO: switch from latest_version to latest_semver satisfied version
-    const lineNumber = rutils.getDepLine(bufferLines, markers, nameRegex, dep, true);
+    const lineNumbers = rutils.getDepLines(bufferLines, markers, nameRegex, dep, true);
     const isVulnerable = "vulnerabilities" in info && info.vulnerabilities.length > 0;
-    if (lineNumber)
-      await render.drawOne(handle, lineNumber, info.current_version, info.latest, isVulnerable);
+    for (let ln of lineNumbers) {
+      await render.drawOne(handle, ln, info.current_version, info.latest, isVulnerable);
+    }
   }
 }
 

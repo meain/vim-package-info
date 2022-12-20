@@ -14,9 +14,10 @@ function isStart(line, depMarkers) {
   return false;
 }
 
-function getDepLine(lines, depMarkers, nameRegex, name, end_maybe_start_of_next = false) {
+function getDepLines(lines, depMarkers, nameRegex, name, end_maybe_start_of_next = false) {
   let start = depMarkers === null ? true : false;
   let end = false;
+  let depLines = [];
   for (let i = 0; i < lines.length; i++) {
     if (start) {
       if (end && end !== null && end.test(lines[i])) {
@@ -33,7 +34,7 @@ function getDepLine(lines, depMarkers, nameRegex, name, end_maybe_start_of_next 
         vals[1] !== null &&
         vals[1].trim() === name.trim()
       ) {
-        return i;
+        depLines.push(i);
       }
       //eslint-disable-next-line
     } else if (!!isStart(lines[i], depMarkers)) {
@@ -41,7 +42,7 @@ function getDepLine(lines, depMarkers, nameRegex, name, end_maybe_start_of_next 
       end = isStart(lines[i], depMarkers).end;
     }
   }
-  return null;
+  return depLines;
 }
 
 function format(current, prefix, hl, latest, vulnerable = false) {
@@ -56,4 +57,4 @@ function format(current, prefix, hl, latest, vulnerable = false) {
   return lpf;
 }
 
-module.exports = { getDepLine, format };
+module.exports = { getDepLines, format };
